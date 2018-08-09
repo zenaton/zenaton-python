@@ -1,6 +1,7 @@
 import os
 
 from core.services.http_service import HttpService
+from core.workflows.version import Version
 
 
 # from core.services.serializer import Serializer
@@ -70,3 +71,6 @@ class Client:
         api_url = os.environ('ZENATON_API_URL') or self.ZENATON_API_URL
         url = '{}/{}?{}={}&'.format(api_url, resource, self.API_TOKEN, params)
         return self.add_app_env(url, params)
+
+    def canonical_name(self, flow):
+        return type(flow).__name__ if issubclass(type(flow), Version)
