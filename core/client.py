@@ -1,6 +1,12 @@
+import os
+
 from core.services.http_service import HttpService
 
-class client:
+
+# from core.services.serializer import Serializer
+# from core.services.properties import Properties
+
+class Client:
 
     ZENATON_API_URL = 'https://zenaton.com/api/v1' # Zenaton api url
     ZENATON_WORKER_URL = 'http://localhost' # Default worker url
@@ -33,4 +39,36 @@ class client:
         self.appId = appId
         self.apiToken = apiToken
         self.appEnv = appEnv
+        self.http = HttpService()
+        # self.serializer = Serializer()
+        # self.properties = Properties()
 
+    def add_app_env(self, url, params):
+        app_env = '{} : {}'.format(self.APP_ENV, self.appEnv) if self.app_env else ''
+        app_id = '{} : {}'.format(self.APP_ENV, self.app_id) if self.app_id else ''
+        return '{}{}{}{}'.format(url, app_env, app_id, params)
+
+    """
+        Gets the url for the workers
+        :param String resource the endpoint for the worker
+        :param String params url encoded parameters to include in request
+        :returns String the workers url with parameters
+    """
+
+    def worker_url(self, resource='', params=''):
+        base_url = os.environ('ZENATON_WORKER_URL') or self.ZENATON_WORKER_URL
+        port = os.environ('ZENATON_WORKER_PORT') or self.DEFAULT_WORKER_PORT
+        url = '{}:{}/api/{}/{}?'.format(base_url, port, self.WORKER_API_VERSION, resource)
+        return self.add_app_env(url, params)
+
+    """
+        Gets the url for zenaton api
+        :param String resource the endpoint for the api
+        :param String params url encoded parameters to include in request
+        :returns String the api url with parameters
+    """
+
+    def website_url(self, resource='', params=''):
+        api_url = os.environ('ZENATON_API_URL') or self.ZENATON_API_URL
+        url = '{}/{}?{}={}&'.format(api_url, resource, self.API_TOKEN, params)
+        return self.add_app_env(url, params)

@@ -1,4 +1,5 @@
 import json
+
 import requests
 
 from core.exceptions import InternalError
@@ -11,15 +12,15 @@ class HttpService:
     """
         Generic Http request function
 
-        param method: 'GET', 'POST' or 'PUT'
-        param url: the requested URL
-        param headers: the headers
-        data: the request boy, if needed
+        :param method: 'GET', 'POST' or 'PUT'
+        :param url: the requested URL
+        :param headers: the headers
+        data the request boy, if needed
 
-        raises InternalError: if status code > 400 or JSON parsing error
-        raises Connection: if connection fails
+        :raises InternalError: if status code > 400 or JSON parsing error
+        :raises Connection: if connection fails
 
-        returns: the request's response content
+        :returns: the request's response content
     """
     def request(self, method, url, headers, data=None):
         try:
