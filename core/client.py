@@ -26,7 +26,7 @@ class Client:
     ATTR_PROG = 'programming_language' # Parameter name for the language
     ATTR_MODE = 'mode' # Parameter name for the worker update mode
 
-    PROG = 'Ruby' # The current programming language
+    PROG = 'Python'  # The current programming language
 
     EVENT_INPUT = 'event_input' # Parameter name for event data
     EVENT_NAME = 'event_name' # Parameter name for event name
@@ -54,7 +54,6 @@ class Client:
         :param String params url encoded parameters to include in request
         :returns String the workers url with parameters
     """
-
     def worker_url(self, resource='', params=''):
         base_url = os.environ('ZENATON_WORKER_URL') or self.ZENATON_WORKER_URL
         port = os.environ('ZENATON_WORKER_PORT') or self.DEFAULT_WORKER_PORT
@@ -67,7 +66,6 @@ class Client:
         :param String params url encoded parameters to include in request
         :returns String the api url with parameters
     """
-
     def website_url(self, resource='', params=''):
         api_url = os.environ('ZENATON_API_URL') or self.ZENATON_API_URL
         url = '{}/{}?{}={}&'.format(api_url, resource, self.API_TOKEN, params)
