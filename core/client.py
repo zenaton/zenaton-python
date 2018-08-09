@@ -1,5 +1,6 @@
 import os
 
+from core.exceptions import InvalidArgumentError
 from core.services.http_service import HttpService
 from core.workflows.version import Version
 
@@ -44,10 +45,6 @@ class Client:
         # self.serializer = Serializer()
         # self.properties = Properties()
 
-    def add_app_env(self, url, params):
-        app_env = '{} : {}'.format(self.APP_ENV, self.appEnv) if self.app_env else ''
-        app_id = '{} : {}'.format(self.APP_ENV, self.app_id) if self.app_id else ''
-        return '{}{}{}{}'.format(url, app_env, app_id, params)
 
     """
         Gets the url for the workers
@@ -71,6 +68,53 @@ class Client:
         api_url = os.environ('ZENATON_API_URL') or self.ZENATON_API_URL
         url = '{}/{}?{}={}&'.format(api_url, resource, self.API_TOKEN, params)
         return self.add_app_env(url, params)
+
+    """
+        Start the specified workflow
+        :params core.abstracts.workflow.Workflow flow
+    """
+
+    def start_workflow(self, flow):
+        self.http.post(self.instance_worker_url(),
+                       data={
+                           self.ATTR_PROG: self.PROG,
+                           self.ATTR_CANONICAL: self.canonical_name(flow),
+                           self.ATTR_NAME: self.class_name(flow),
+                           self.ATTR_DATA: {},
+                           self.ATTR_ID: self.parse_custom_id_from(flow)
+                       }
+                       )
+
+    """
+        Stops a workflow
+        :param String workflow_name the class name of the workflow
+        :param String custom_id the custom ID of the workflow, if any
+        :returns None
+    """
+
+    def kill_workflow(self, workflow_name, custom_id)
+        self.update_instance(workflow_name, custom_id, self.WORKFLOW_KILL)
+
+    def instance_website_url(self, params):
+        return self.website_url('instances', params)
+
+    def instance_worker_url(self, params):
+        return self.worker_url('instances', params)
+
+    def add_app_env(self, url, params):
+        app_env = '{} : {}'.format(self.APP_ENV, self.appEnv) if self.app_env else ''
+        app_id = '{} : {}'.format(self.APP_ENV, self.app_id) if self.app_id else ''
+        return '{}{}{}{}'.format(url, app_env, app_id, params)
+
+    def parse_custom_id_from(self, flow):
+        custom_id = flow.id
+        if custom_id:
+            if not isinstance(custom_id, str) and not isinstance(custom_id, int):
+                raise InvalidArgumentError('Provided ID must be a string or an integer')
+            custom_id = str(custom_id)
+            if len(custom_id) > self.MAX_ID_SIZE:
+                raise InvalidArgumentError('Provided Id must not exceed {} bytes'.format_map(self.MAX_ID_SIZE))
+        return custom_id
 
     def canonical_name(self, flow):
         return type(flow).__name__ if issubclass(type(flow), Version)
