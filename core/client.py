@@ -69,21 +69,53 @@ class Client:
         url = '{}/{}?{}={}&'.format(api_url, resource, self.API_TOKEN, params)
         return self.add_app_env(url, params)
 
+    def send_event_url(self):
+        return self.worker_url('events')
+
+
     """
         Start the specified workflow
         :params core.abstracts.workflow.Workflow flow
     """
-
     def start_workflow(self, flow):
         self.http.post(self.instance_worker_url(),
                        data={
                            self.ATTR_PROG: self.PROG,
                            self.ATTR_CANONICAL: self.canonical_name(flow),
                            self.ATTR_NAME: self.class_name(flow),
+                           # TO DO
                            self.ATTR_DATA: {},
                            self.ATTR_ID: self.parse_custom_id_from(flow)
-                       }
-                       )
+                       })
+
+    def update_instance(self, workflow_name, custom_id, mode):
+        params = '{}={}'.format_map(self.ATTR_ID, custom_id)
+        url = self.instance_worker_url()
+        options = {
+            self.ATTR_PROG: self.PROG,
+            self.ATTR_NAME: workflow_name,
+            self.ATTR_MODE: mode
+        }
+        self.http.put(url, options)
+
+    """
+        Sends an event to a workflow
+        :param String workflow_name  the class name of the workflow
+        :param String custom_id the custom ID of the workflow (if any)
+        :param core.abstracts.Event event the event to send
+        :returns None
+    """
+
+    def send_event(self, workflow_name, custom_id, event):
+        body = {
+            self.ATTR_PROG: self.PROG,
+            self.ATTR_NAME: workflow_name,
+            self.ATTR_ID: custom_id,
+            self.EVENT_NAME: event.__class__.__name__,
+            # TO DO
+            self.EVENT_INPUT: {}
+        }
+        self.http.post(self.send_event_url(), body)
 
     """
         Stops a workflow
@@ -91,9 +123,29 @@ class Client:
         :param String custom_id the custom ID of the workflow, if any
         :returns None
     """
-
     def kill_workflow(self, workflow_name, custom_id)
         self.update_instance(workflow_name, custom_id, self.WORKFLOW_KILL)
+
+    """
+        Pauses a workflow
+        :param String workflow_name the class name of the workflow
+        :param String custom_id the custom ID of the workflow, if any
+        :returns None
+    """
+
+    def pause_workflow(self, workflow_name, custom_id)
+        self.update_instance(workflow_name, custom_id, self.WORKFLOW_PAUSE)
+
+    """
+        Resumes a workflow
+        :param String workflow_name the class name of the workflow
+        :param String custom_id the custom ID of the workflow, if any
+        :returns None
+    """
+
+    def resume(self, workflow_name, custom_id)
+        self.update_instance(workflow_name, custom_id, self.WORKFLOW_RUN)
+
 
     def instance_website_url(self, params):
         return self.website_url('instances', params)
