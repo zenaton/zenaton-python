@@ -16,17 +16,17 @@ class Engine:
         self.client = Client()
         self.processor = None
 
-    # TO DO
     """
         Executes jobs synchronously
         @param jobs [Array<Zenaton::Interfaces::Job>]
         @return [Array<String>, nil] the results if executed locally, or nil
     """
-
     def execute(self, jobs):
-        pass
+        map(self.check_argument, jobs)
+        if self.process_locally(jobs):
+            return map(lambda job: job.handle, jobs)
+        return self.processor.process(jobs, True)
 
-    # TO DO
     """
         Executes jobs asynchronously
         @param jobs [Array<Zenaton::Interfaces::Job>]
@@ -34,7 +34,11 @@ class Engine:
     """
 
     def dispatch(self, jobs):
-        pass
+        map(self.check_argument, jobs)
+        if self.process_locally(jobs):
+            map(self.local_dispatch, jobs)
+            if len(jobs) > 0:
+                self.processor.process(jobs, False)
 
     def process_locally(self, jobs):
         return len(jobs) == 0 or self.processor is None
@@ -52,6 +56,5 @@ class Engine:
     """
         Checks if the job is a valid job i.e. it is either a Task or a Workflow
     """
-
     def valid_job(self, job):
         return issubclass(job.__class__, Task) or issubclass(job.__class__, Workflow)
