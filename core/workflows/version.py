@@ -2,9 +2,7 @@ import abc
 
 from core.abstracts.workflow import Workflow
 from core.exceptions import ExternalError
-
-
-# from core.traits.zenatonable import Zenatonable
+from core.traits.zenatonable import Zenatonable
 
 
 class Version(Zenatonable):

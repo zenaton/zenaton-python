@@ -1,10 +1,10 @@
 from core.abstracts.task import Task
 from core.abstracts.workflow import Workflow
-from core.client import Client
 from core.exceptions import InvalidArgumentError
+from core.singleton import Singleton
 
 
-class Engine:
+class Engine(metaclass=Singleton):
     """
         Zenaton Engine is a singleton class that stores a reference to the current
         client and processor. It then handles job processing either locally or
@@ -13,6 +13,7 @@ class Engine:
     """
 
     def __init__(self):
+        from core.client import Client
         self.client = Client()
         self.processor = None
 
@@ -24,7 +25,7 @@ class Engine:
     def execute(self, jobs):
         map(self.check_argument, jobs)
         if self.process_locally(jobs):
-            return map(lambda job: job.handle, jobs)
+            return list(map(lambda job: job.handle(), jobs))
         return self.processor.process(jobs, True)
 
     """

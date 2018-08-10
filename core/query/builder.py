@@ -1,11 +1,11 @@
-from ..abstracts.workflow import Workflow
-from ..client import Client
-from ..exceptions import ExternalError
+from core.abstracts.workflow import Workflow
+from core.exceptions import ExternalError
 
 
 class Builder:
     """Wrapper class around the client to interact with workflows by id"""
     def __init__(self, klass):
+        from core.client import Client
         self.check_klass(klass)
         self.klass = klass
         self.client = Client()
