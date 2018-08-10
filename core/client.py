@@ -42,8 +42,8 @@ class Client:
         self.apiToken = apiToken
         self.appEnv = appEnv
         self.http = HttpService()
-        # self.serializer = Serializer()
-        # self.properties = Properties()
+        self.serializer = Serializer()
+        self.properties = Properties()
 
 
     """
@@ -118,6 +118,19 @@ class Client:
         self.http.post(self.send_event_url(), body)
 
     """
+        Finds a workflow
+        :param String workflow_name the class name of the workflow
+        :param String custom_id the custom ID of the workflow (if any)
+        :return core.abstracts.workflow.Workflow
+    """
+    def find_workflow(self, workflow_name, custom_id):
+
+        params='{}={}&{}={}&{}={}'.format_map(self.ATTR_ID, custom_id, self.ATTR_NAME, workflow_name, self.ATTR_PROG, self.PROG)
+        data = self.http.get(self.instance_website_url(params))['data']
+        # TO DO
+        pass
+
+    """
         Stops a workflow
         :param String workflow_name the class name of the workflow
         :param String custom_id the custom ID of the workflow, if any
@@ -143,7 +156,7 @@ class Client:
         :returns None
     """
 
-    def resume(self, workflow_name, custom_id)
+    def resume_workflow(self, workflow_name, custom_id)
         self.update_instance(workflow_name, custom_id, self.WORKFLOW_RUN)
 
 
@@ -169,4 +182,8 @@ class Client:
         return custom_id
 
     def canonical_name(self, flow):
-        return type(flow).__name__ if issubclass(type(flow), Version)
+        return type(flow).__name__ if issubclass(type(flow), Version) else None
+
+
+    def class_name(self, flow):
+        #TO DO
