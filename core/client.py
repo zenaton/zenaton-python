@@ -1,14 +1,16 @@
 import os
 
 from core.exceptions import InvalidArgumentError
+from core.singleton import Singleton
 from core.services.http_service import HttpService
 from core.workflows.version import Version
+
 
 
 # from core.services.serializer import Serializer
 # from core.services.properties import Properties
 
-class Client:
+class Client(metaclass=Singleton):
 
     ZENATON_API_URL = 'https://zenaton.com/api/v1' # Zenaton api url
     ZENATON_WORKER_URL = 'http://localhost' # Default worker url
@@ -42,8 +44,8 @@ class Client:
         self.apiToken = apiToken
         self.appEnv = appEnv
         self.http = HttpService()
-        self.serializer = Serializer()
-        self.properties = Properties()
+        # self.serializer = Serializer()
+        # self.properties = Properties()
 
 
     """
@@ -136,7 +138,7 @@ class Client:
         :param String custom_id the custom ID of the workflow, if any
         :returns None
     """
-    def kill_workflow(self, workflow_name, custom_id)
+    def kill_workflow(self, workflow_name, custom_id):
         self.update_instance(workflow_name, custom_id, self.WORKFLOW_KILL)
 
     """
@@ -146,7 +148,7 @@ class Client:
         :returns None
     """
 
-    def pause_workflow(self, workflow_name, custom_id)
+    def pause_workflow(self, workflow_name, custom_id):
         self.update_instance(workflow_name, custom_id, self.WORKFLOW_PAUSE)
 
     """
@@ -156,7 +158,7 @@ class Client:
         :returns None
     """
 
-    def resume_workflow(self, workflow_name, custom_id)
+    def resume_workflow(self, workflow_name, custom_id):
         self.update_instance(workflow_name, custom_id, self.WORKFLOW_RUN)
 
 
@@ -186,4 +188,8 @@ class Client:
 
 
     def class_name(self, flow):
-        #TO DO
+        if issubclass(flow, Version):
+            return type(flow.current_implementation()).__name__
+        type(flow).__name__
+
+
