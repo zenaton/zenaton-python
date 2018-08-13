@@ -1,5 +1,3 @@
-
-
 """Zenaton base error class"""
 class Error(Exception):
     pass

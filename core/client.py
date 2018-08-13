@@ -1,10 +1,9 @@
 import os
 
 from core.exceptions import InvalidArgumentError
-from core.singleton import Singleton
 from core.services.http_service import HttpService
+from core.singleton import Singleton
 from core.workflows.version import Version
-
 
 
 # from core.services.serializer import Serializer
@@ -39,14 +38,13 @@ class Client(metaclass=Singleton):
     WORKFLOW_PAUSE = 'pause' # Worker udpate mode to pause a worker
     WORKFLOW_RUN = 'run' # Worker update mode to resume a worker
 
-    def __init__(self, appId, apiToken, appEnv):
-        self.appId = appId
-        self.apiToken = apiToken
-        self.appEnv = appEnv
+    def __init__(self, app_id, api_token, app_env):
+        self.app_id = app_id
+        self.api_token = api_token
+        self.app_env = app_env
         self.http = HttpService()
         # self.serializer = Serializer()
         # self.properties = Properties()
-
 
     """
         Gets the url for the workers
@@ -55,8 +53,8 @@ class Client(metaclass=Singleton):
         :returns String the workers url with parameters
     """
     def worker_url(self, resource='', params=''):
-        base_url = os.environ('ZENATON_WORKER_URL') or self.ZENATON_WORKER_URL
-        port = os.environ('ZENATON_WORKER_PORT') or self.DEFAULT_WORKER_PORT
+        base_url = os.environ.get('ZENATON_WORKER_URL') or self.ZENATON_WORKER_URL
+        port = os.environ.get('ZENATON_WORKER_PORT') or self.DEFAULT_WORKER_PORT
         url = '{}:{}/api/{}/{}?'.format(base_url, port, self.WORKER_API_VERSION, resource)
         return self.add_app_env(url, params)
 
@@ -67,13 +65,12 @@ class Client(metaclass=Singleton):
         :returns String the api url with parameters
     """
     def website_url(self, resource='', params=''):
-        api_url = os.environ('ZENATON_API_URL') or self.ZENATON_API_URL
+        api_url = os.environ.get('ZENATON_API_URL') or self.ZENATON_API_URL
         url = '{}/{}?{}={}&'.format(api_url, resource, self.API_TOKEN, params)
         return self.add_app_env(url, params)
 
     def send_event_url(self):
         return self.worker_url('events')
-
 
     """
         Start the specified workflow
@@ -107,7 +104,6 @@ class Client(metaclass=Singleton):
         :param core.abstracts.Event event the event to send
         :returns None
     """
-
     def send_event(self, workflow_name, custom_id, event):
         body = {
             self.ATTR_PROG: self.PROG,
@@ -147,7 +143,6 @@ class Client(metaclass=Singleton):
         :param String custom_id the custom ID of the workflow, if any
         :returns None
     """
-
     def pause_workflow(self, workflow_name, custom_id):
         self.update_instance(workflow_name, custom_id, self.WORKFLOW_PAUSE)
 
@@ -157,24 +152,22 @@ class Client(metaclass=Singleton):
         :param String custom_id the custom ID of the workflow, if any
         :returns None
     """
-
     def resume_workflow(self, workflow_name, custom_id):
         self.update_instance(workflow_name, custom_id, self.WORKFLOW_RUN)
 
-
-    def instance_website_url(self, params):
+    def instance_website_url(self, params=''):
         return self.website_url('instances', params)
 
-    def instance_worker_url(self, params):
+    def instance_worker_url(self, params=''):
         return self.worker_url('instances', params)
 
     def add_app_env(self, url, params):
-        app_env = '{} : {}'.format(self.APP_ENV, self.appEnv) if self.app_env else ''
-        app_id = '{} : {}'.format(self.APP_ENV, self.app_id) if self.app_id else ''
+        app_env = '{}={}&'.format(self.APP_ENV, self.app_env) if self.app_env else ''
+        app_id = '{}={}&'.format(self.APP_ENV, self.app_id) if self.app_id else ''
         return '{}{}{}{}'.format(url, app_env, app_id, params)
 
     def parse_custom_id_from(self, flow):
-        custom_id = flow.id
+        custom_id = flow.id()
         if custom_id:
             if not isinstance(custom_id, str) and not isinstance(custom_id, int):
                 raise InvalidArgumentError('Provided ID must be a string or an integer')
@@ -184,12 +177,10 @@ class Client(metaclass=Singleton):
         return custom_id
 
     def canonical_name(self, flow):
-        return type(flow).__name__ if issubclass(type(flow), Version) else None
+        return type(flow).__name__ if issubclass(type(flow), Version) else ''
 
 
     def class_name(self, flow):
-        if issubclass(flow, Version):
+        if issubclass(type(flow), Version):
             return type(flow.current_implementation()).__name__
-        type(flow).__name__
-
-
+        return type(flow).__name__

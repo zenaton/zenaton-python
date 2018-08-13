@@ -24,7 +24,7 @@ class Engine(metaclass=Singleton):
     """
     def execute(self, jobs):
         map(self.check_argument, jobs)
-        if self.process_locally(jobs):
+        if len(jobs) == 0 or self.processor is None:
             return list(map(lambda job: job.handle(), jobs))
         return self.processor.process(jobs, True)
 
@@ -33,16 +33,12 @@ class Engine(metaclass=Singleton):
         @param jobs [Array<Zenaton::Interfaces::Job>]
         @return nil
     """
-
     def dispatch(self, jobs):
         map(self.check_argument, jobs)
-        if self.process_locally(jobs):
-            map(self.local_dispatch, jobs)
-            if len(jobs) > 0:
-                self.processor.process(jobs, False)
-
-    def process_locally(self, jobs):
-        return len(jobs) == 0 or self.processor is None
+        if len(jobs) == 0 or self.processor is None:
+            list(map(lambda job: self.local_dispatch(job), jobs))
+        if self.processor and len(jobs) > 0:
+            self.processor.process(jobs, False)
 
     def local_dispatch(self, job):
         if issubclass(job.__class__, Workflow):
