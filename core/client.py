@@ -29,7 +29,8 @@ class Client(metaclass=Singleton):
     ATTR_PROG = 'programming_language' # Parameter name for the language
     ATTR_MODE = 'mode' # Parameter name for the worker update mode
 
-    PROG = 'Python'  # The current programming language
+    # PROG = 'Python'  # The current programming language
+    PROG = 'Ruby'  # The current programming language
 
     EVENT_INPUT = 'event_input' # Parameter name for event data
     EVENT_NAME = 'event_name' # Parameter name for event name
@@ -83,7 +84,7 @@ class Client(metaclass=Singleton):
                            self.ATTR_CANONICAL: self.canonical_name(flow),
                            self.ATTR_NAME: self.class_name(flow),
                            # TO DO
-                           self.ATTR_DATA: {},
+                           self.ATTR_DATA: '{}',
                            self.ATTR_ID: self.parse_custom_id_from(flow)
                        })
 
@@ -163,7 +164,7 @@ class Client(metaclass=Singleton):
 
     def add_app_env(self, url, params):
         app_env = '{}={}&'.format(self.APP_ENV, self.app_env) if self.app_env else ''
-        app_id = '{}={}&'.format(self.APP_ENV, self.app_id) if self.app_id else ''
+        app_id = '{}={}&'.format(self.APP_ID, self.app_id) if self.app_id else ''
         return '{}{}{}{}'.format(url, app_env, app_id, params)
 
     def parse_custom_id_from(self, flow):
