@@ -32,7 +32,7 @@ class Builder:
         :returns query.builder the current builder
     """
     def send_event(self, event):
-        self.client.send_event(self.klass, self.id, event)
+        self.client.send_event(self.klass.__name__, self.id, event)
 
     """
         Kills a workflow

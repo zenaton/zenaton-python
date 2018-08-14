@@ -26,6 +26,5 @@ class Zenatonable:
         :returns core.query.builder.Builder a query builder object
     """
 
-    @staticmethod
     def where_id(self, workflow_id):
-        return Builder(self).where_id(workflow_id)
+        return Builder(type(self)).where_id(workflow_id)

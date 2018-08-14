@@ -107,14 +107,14 @@ class Client(metaclass=Singleton):
         :returns None
     """
     def send_event(self, workflow_name, custom_id, event):
-        body = {
+        body = json.dumps({
             self.ATTR_PROG: self.PROG,
             self.ATTR_NAME: workflow_name,
             self.ATTR_ID: custom_id,
             self.EVENT_NAME: event.__class__.__name__,
             # TO DO
-            self.EVENT_INPUT: {}
-        }
+            self.EVENT_INPUT: '{\"o\":\"@zenaton#0\",\"s\":[{\"a\":{}}]}',
+        })
         self.http.post(self.send_event_url(), body)
 
     """
