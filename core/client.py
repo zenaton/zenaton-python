@@ -1,3 +1,4 @@
+import json
 import os
 
 from core.exceptions import InvalidArgumentError
@@ -79,14 +80,14 @@ class Client(metaclass=Singleton):
     """
     def start_workflow(self, flow):
         self.http.post(self.instance_worker_url(),
-                       data={
+                       data=json.dumps({
                            self.ATTR_PROG: self.PROG,
                            self.ATTR_CANONICAL: self.canonical_name(flow),
                            self.ATTR_NAME: self.class_name(flow),
                            # TO DO
-                           self.ATTR_DATA: '{}',
+                           self.ATTR_DATA: '{\"o\":\"@zenaton#0\",\"s\":[{\"a\":{}}]}',
                            self.ATTR_ID: self.parse_custom_id_from(flow)
-                       })
+                       }))
 
     def update_instance(self, workflow_name, custom_id, mode):
         params = '{}={}'.format_map(self.ATTR_ID, custom_id)
@@ -178,7 +179,7 @@ class Client(metaclass=Singleton):
         return custom_id
 
     def canonical_name(self, flow):
-        return type(flow).__name__ if issubclass(type(flow), Version) else ''
+        return type(flow).__name__ if issubclass(type(flow), Version) else None
 
 
     def class_name(self, flow):

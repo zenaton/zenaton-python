@@ -10,4 +10,4 @@ class Workflow(Job):
         pass
 
     def id(self):
-        return ''
+        return None
