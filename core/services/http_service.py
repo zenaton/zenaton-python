@@ -7,7 +7,7 @@ from core.exceptions import InternalError
 
 class HttpService:
     """Http Call Header"""
-    HEADER = {'Accept': 'application/json'}
+    HEADER = {'Accept': 'application/json', 'Content-type': 'application/json'}
 
     """
         Generic Http request function
@@ -27,7 +27,7 @@ class HttpService:
             r = requests.request(method=method, url=url, headers=headers, data=data)
             content = r.json()
             if r.status_code >= 400:
-                raise InternalError
+                raise InternalError(r.content)
         except json.decoder.JSONDecodeError:
             raise InternalError
         except requests.exceptions.ConnectionError:

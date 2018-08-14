@@ -25,7 +25,7 @@ class Engine(metaclass=Singleton):
     def execute(self, jobs):
         map(self.check_argument, jobs)
         if len(jobs) == 0 or self.processor is None:
-            return list(map(lambda job: job.handle(), jobs))
+            return [job.handle() for job in jobs]
         return self.processor.process(jobs, True)
 
     """
@@ -36,7 +36,7 @@ class Engine(metaclass=Singleton):
     def dispatch(self, jobs):
         map(self.check_argument, jobs)
         if len(jobs) == 0 or self.processor is None:
-            list(map(lambda job: self.local_dispatch(job), jobs))
+            [self.local_dispatch(job) for job in jobs]
         if self.processor and len(jobs) > 0:
             self.processor.process(jobs, False)
 
