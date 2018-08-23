@@ -1,10 +1,10 @@
-from core.engine import Engine
+from .engine import Engine
 
 
 class Parallel:
     """
         Build a collection of jobs to be executed in parallel
-        :params: [core.abstracts.job.Job] items
+        :params: [.abstracts.job.Job] items
     """
 
     def __init__(self, items):

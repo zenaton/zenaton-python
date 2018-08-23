@@ -1,11 +1,11 @@
-from core.abstracts.workflow import Workflow
-from core.exceptions import ExternalError
+from ..abstracts.workflow import Workflow
+from ..exceptions import ExternalError
 
 
 class Builder:
     """Wrapper class around the client to interact with workflows by id"""
     def __init__(self, klass):
-        from core.client import Client
+        from .client import Client
         self.check_klass(klass)
         self.klass = klass
         self.client = Client()
@@ -63,6 +63,6 @@ class Builder:
         :param class klass
     """
     def check_klass(self, klass):
-        msg = '{} should be a subclass of core.abstracts.workflow'.format(klass)
+        msg = '{} should be a subclass of .abstracts.workflow'.format(klass)
         if not issubclass(klass, Workflow):
             raise ExternalError(msg)

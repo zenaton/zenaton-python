@@ -2,7 +2,7 @@ import json
 
 import requests
 
-from core.exceptions import InternalError
+from ..exceptions import InternalError
 
 
 class HttpService:
@@ -38,10 +38,13 @@ class HttpService:
     def get(self, url):
         return self.request(method='GET', url=url, headers=self.HEADER)
 
-    """GET function, calls with the right arguments request() """
+    """POST function, calls with the right arguments request()"""
     def post(self, url, data=None):
+        print(url)
+        print(self.HEADER)
+        print(data)
         return self.request(method='POST', url=url, headers=self.HEADER, data=data)
 
-    """PUT function, calls with the right arguments request() """
+    """PUT function, calls with the right arguments request()"""
     def put(self, url, data=None):
         return self.request(method='PUT', url=url, headers=self.HEADER, data=data)

@@ -1,5 +1,5 @@
-from core.engine import Engine
-from core.query.builder import Builder
+from ..engine import Engine
+from ..query.builder import Builder
 
 
 class Zenatonable:
@@ -21,9 +21,9 @@ class Zenatonable:
 
     """
         Search for workflows to interact with.
-        For available methods, see core.query.builder.Builder
+        For available methods, see .query.builder.Builder
         :param String id ID for a given worflow
-        :returns core.query.builder.Builder a query builder object
+        :returns .query.builder.Builder a query builder object
     """
 
     def where_id(self, workflow_id):

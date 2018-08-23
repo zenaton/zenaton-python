@@ -1,7 +1,7 @@
-from core.abstracts.task import Task
-from core.abstracts.workflow import Workflow
-from core.exceptions import InvalidArgumentError
-from core.singleton import Singleton
+from .abstracts.task import Task
+from .abstracts.workflow import Workflow
+from .exceptions import InvalidArgumentError
+from .singleton import Singleton
 
 
 class Engine(metaclass=Singleton):
@@ -13,7 +13,7 @@ class Engine(metaclass=Singleton):
     """
 
     def __init__(self):
-        from core.client import Client
+        from .client import Client
         self.client = Client()
         self.processor = None
 

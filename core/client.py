@@ -1,14 +1,13 @@
 import json
 import os
 
-from core.exceptions import InvalidArgumentError
-from core.services.http_service import HttpService
-from core.singleton import Singleton
-from core.workflows.version import Version
+from .exceptions import InvalidArgumentError
+from .services.http_service import HttpService
+from .singleton import Singleton
+from .workflows.version import Version
 
-
-# from core.services.serializer import Serializer
-# from core.services.properties import Properties
+# from .services.serializer import Serializer
+# from .services.properties import Properties
 
 class Client(metaclass=Singleton):
 
@@ -76,7 +75,7 @@ class Client(metaclass=Singleton):
 
     """
         Start the specified workflow
-        :params core.abstracts.workflow.Workflow flow
+        :params .abstracts.workflow.Workflow flow
     """
     def start_workflow(self, flow):
         self.http.post(self.instance_worker_url(),
@@ -103,7 +102,7 @@ class Client(metaclass=Singleton):
         Sends an event to a workflow
         :param String workflow_name  the class name of the workflow
         :param String custom_id the custom ID of the workflow (if any)
-        :param core.abstracts.Event event the event to send
+        :param .abstracts.Event event the event to send
         :returns None
     """
     def send_event(self, workflow_name, custom_id, event):
@@ -121,7 +120,7 @@ class Client(metaclass=Singleton):
         Finds a workflow
         :param String workflow_name the class name of the workflow
         :param String custom_id the custom ID of the workflow (if any)
-        :return core.abstracts.workflow.Workflow
+        :return .abstracts.workflow.Workflow
     """
     def find_workflow(self, workflow_name, custom_id):
 

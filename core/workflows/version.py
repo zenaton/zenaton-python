@@ -1,8 +1,8 @@
 import abc
 
-from core.abstracts.workflow import Workflow
-from core.exceptions import ExternalError
-from core.traits.zenatonable import Zenatonable
+from ..abstracts.workflow import Workflow
+from ..exceptions import ExternalError
+from ..traits.zenatonable import Zenatonable
 
 
 class Version(Zenatonable):
@@ -37,7 +37,7 @@ class Version(Zenatonable):
 
     """
     Returns an instance of the current implementation
-    :returns core.abstracts.workflow.Workflow
+    :returns .abstracts.workflow.Workflow
     """
 
     def current_implementation(self):
