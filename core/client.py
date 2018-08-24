@@ -6,6 +6,7 @@ from .services.http_service import HttpService
 from .singleton import Singleton
 from .workflows.version import Version
 
+
 # from .services.serializer import Serializer
 # from .services.properties import Properties
 
@@ -29,8 +30,7 @@ class Client(metaclass=Singleton):
     ATTR_PROG = 'programming_language' # Parameter name for the language
     ATTR_MODE = 'mode' # Parameter name for the worker update mode
 
-    # PROG = 'Python'  # The current programming language
-    PROG = 'Ruby'  # The current programming language
+    PROG = 'Python'  # The current programming language
 
     EVENT_INPUT = 'event_input' # Parameter name for event data
     EVENT_NAME = 'event_name' # Parameter name for event name
