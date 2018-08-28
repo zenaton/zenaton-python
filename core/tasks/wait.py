@@ -1,0 +1,2 @@
+class Wait:
+    pass
