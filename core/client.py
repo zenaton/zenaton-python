@@ -110,8 +110,7 @@ class Client(metaclass=Singleton):
             self.ATTR_PROG: self.PROG,
             self.ATTR_NAME: workflow_name,
             self.ATTR_ID: custom_id,
-            self.EVENT_NAME: event.__class__.__name__,
-            # TO DO
+            self.EVENT_NAME: event.__name__,
             self.EVENT_INPUT: '{\"o\":\"@zenaton#0\",\"s\":[{\"a\":{}}]}',
         })
         self.http.post(self.send_event_url(), body)
@@ -124,7 +123,8 @@ class Client(metaclass=Singleton):
     """
     def find_workflow(self, workflow_name, custom_id):
 
-        params='{}={}&{}={}&{}={}'.format_map(self.ATTR_ID, custom_id, self.ATTR_NAME, workflow_name, self.ATTR_PROG, self.PROG)
+        params = '{}={}&{}={}&{}={}'.format(self.ATTR_ID, custom_id, self.ATTR_NAME, workflow_name, self.ATTR_PROG,
+                                            self.PROG)
         data = self.http.get(self.instance_website_url(params))['data']
         # TO DO
         pass

@@ -40,9 +40,6 @@ class HttpService:
 
     """POST function, calls with the right arguments request()"""
     def post(self, url, data=None):
-        print(url)
-        print(self.HEADER)
-        print(data)
         return self.request(method='POST', url=url, headers=self.HEADER, data=data)
 
     """PUT function, calls with the right arguments request()"""

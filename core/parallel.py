@@ -7,7 +7,7 @@ class Parallel:
         :params: [.abstracts.job.Job] items
     """
 
-    def __init__(self, items):
+    def __init__(self, *items):
         self.items = items
 
     # Execute synchronous jobs

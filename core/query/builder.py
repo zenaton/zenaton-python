@@ -5,7 +5,7 @@ from ..exceptions import ExternalError
 class Builder:
     """Wrapper class around the client to interact with workflows by id"""
     def __init__(self, klass):
-        from .client import Client
+        from ..client import Client
         self.check_klass(klass)
         self.klass = klass
         self.client = Client()
