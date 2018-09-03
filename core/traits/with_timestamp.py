@@ -17,10 +17,57 @@ class WithTimestamp(WithDuration):
     timezone = 'UTC'
 
     def get_timetamps_or_duration(self):
-        pass
+        if self.buffer is None:
+            return [None, None]
+        now, now_dup = self.__init_now_then()
+        self.mode = None
+        for (time_unit, time_value) in self.buffer.items():
+            now_dup = self.__apply(time_unit, time_value, now, now_dup)
+        if self.mode is None:
+            return [None, self.diff_in_secondes(now, now_dup)]
+        return [int(now_dup), None]
+
+    def timestamp(self, value):
+        return self.__push('timestamp', value)
+
+    def at(self, value):
+        return self.__push('at', value)
+
+    def on_day(self, value):
+        return self.__push('on_day', value)
+
+    def monday(self, value):
+        return self.__push('monday', value)
+
+    def tuesday(self, value):
+        return self.__push('tuesday', value)
+
+    def wednesday(self, value):
+        return self.__push('wednesday', value)
+
+    def thursday(self, value):
+        return self.__push('thursday', value)
+
+    def friday(self, value):
+        return self.__push('friday', value)
+
+    def saturday(self, value):
+        return self.__push('saturday', value)
+
+    def sunday(self, value):
+        return self.__push('sunday', value)
 
     def __apply(self, method, value, now, now_dup):
-        pass
+        if method in self.WEEKDAYS:
+            return self.__weekday(value, method, now_dup)
+        elif method == 'timestamp':
+            return self.__timestamp(value)
+        elif method == 'at':
+            return self.at(value, now, now_dup)
+        elif method == 'on_day':
+            return self.on_day(value, now, now_dup)
+        else:
+            return self.__apply_duration(method, value, now)
 
     def __weekday(self, value, day, now_dup):
         self.__set_mode(self.MODE_WEEK_DAY)
@@ -45,7 +92,7 @@ class WithTimestamp(WithDuration):
         sec = int(time.second)
         now_dup = now_dup.replace(hour=hour, minute=min, second=sec)
         if now > now_dup:
-            nom += self.__delay()
+            now += self.__delay()
         return now_dup
 
     def __delay(self):
