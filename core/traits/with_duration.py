@@ -16,24 +16,31 @@ class WithDuration:
 
     def seconds(self, value):
         self.__push('seconds', value)
+        return self
 
     def minutes(self, value):
         self.__push('minutes', value)
+        return self
 
     def hours(self, value):
         self.__push('hours', value)
+        return self
 
     def days(self, value):
         self.__push('days', value)
+        return self
 
     def weeks(self, value):
         self.__push('weeks', value)
+        return self
 
     def months(self, value):
         self.__push('months', value)
+        return self
 
     def years(self, value):
         self.__push('years', value)
+        return self
 
     def __init_now_then(self):
         tz = self.timezone if self.timezone else 'UTC'
@@ -41,7 +48,7 @@ class WithDuration:
         return now, copy.deepcopy(now)
 
     def __push(self, key, value=1):
-        if self.buffer is None:
+        if not hasattr(self, 'buffer') is None:
             self.buffer = {}
         else:
             self.buffer[key] = value
@@ -50,4 +57,4 @@ class WithDuration:
         return time + datetime.timedelta(time_unit=time_value)
 
     def __diff_in_secondes(self, before, after):
-        return int(after - before)
+        return (after - before) / datetime.timedelta(seconds=1)

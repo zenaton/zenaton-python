@@ -16,46 +16,56 @@ class WithTimestamp(WithDuration):
 
     timezone = 'UTC'
 
-    def get_timetamps_or_duration(self):
+    def get_timetamp_or_duration(self):
         if self.buffer is None:
             return [None, None]
-        now, now_dup = self.__init_now_then()
+        now, now_dup = self._WithDuration__init_now_then()
         self.mode = None
         for (time_unit, time_value) in self.buffer.items():
             now_dup = self.__apply(time_unit, time_value, now, now_dup)
         if self.mode is None:
-            return [None, self.diff_in_secondes(now, now_dup)]
+            return [None, self._WithDuration__diff_in_secondes(now, now_dup)]
         return [int(now_dup), None]
 
     def timestamp(self, value):
-        return self.__push('timestamp', value)
+        self._WithDuration__push('timestamp', value)
+        return self
 
     def at(self, value):
-        return self.__push('at', value)
+        self._WithDuration__push('at', value)
+        return self
 
     def on_day(self, value):
-        return self.__push('on_day', value)
+        self._WithDuration__push('on_day', value)
+        return self
 
     def monday(self, value):
-        return self.__push('monday', value)
+        self._WithDuration__push('monday', value)
+        return self
 
     def tuesday(self, value):
-        return self.__push('tuesday', value)
+        self._WithDuration__push('tuesday', value)
+        return self
 
     def wednesday(self, value):
-        return self.__push('wednesday', value)
+        self._WithDuration__push('wednesday', value)
+        return self
 
     def thursday(self, value):
-        return self.__push('thursday', value)
+        self._WithDuration__push('thursday', value)
+        return self
 
     def friday(self, value):
-        return self.__push('friday', value)
+        self._WithDuration__push('friday', value)
+        return self
 
     def saturday(self, value):
-        return self.__push('saturday', value)
+        self._WithDuration__push('saturday', value)
+        return self
 
     def sunday(self, value):
-        return self.__push('sunday', value)
+        self._WithDuration__push('sunday', value)
+        return self
 
     def __apply(self, method, value, now, now_dup):
         if method in self.WEEKDAYS:

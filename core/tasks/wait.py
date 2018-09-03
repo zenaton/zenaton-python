@@ -11,6 +11,7 @@ from ..traits.zenatonable import Zenatonable
 class Wait(Task, Zenatonable, WithTimestamp):
 
     def __init__(self, event=None):
+        super(Wait, self).__init__()
         if not self.valid_param(event):
             raise ExternalError(self.error)
         self.event = event
@@ -24,7 +25,7 @@ class Wait(Task, Zenatonable, WithTimestamp):
         pass
 
     def valid_param(self, event):
-        return self.event is None or isinstance(event, str) or self.event_class(event)
+        return not hasattr(self, 'event') or isinstance(event, str) or self.event_class(event)
 
     def event_class(self, event):
         return inspect.isclass(event) and issubclass(event, Event)
