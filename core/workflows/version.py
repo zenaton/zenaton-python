@@ -5,7 +5,7 @@ from ..exceptions import ExternalError
 from ..traits.zenatonable import Zenatonable
 
 
-class Version(Zenatonable):
+class Version(Workflow, Zenatonable):
 
     def __init__(self, *args):
         self.args = args
@@ -17,7 +17,7 @@ class Version(Zenatonable):
     """Calls handle on the current implementation"""
 
     def handle(self):
-        self.current_implementation.handle
+        self.current_implementation().handle()
 
     """
     Get the current implementation class
@@ -25,7 +25,7 @@ class Version(Zenatonable):
     """
 
     def current(self):
-        return self.__get_versions[-1]
+        return self.__get_versions()[-1]
 
     """
         Get the first implementation class
@@ -33,7 +33,7 @@ class Version(Zenatonable):
     """
 
     def initial(self):
-        return self.__get_versions[0]
+        return self.__get_versions()[0]
 
     """
     Returns an instance of the current implementation
@@ -41,7 +41,10 @@ class Version(Zenatonable):
     """
 
     def current_implementation(self):
-        self.current(self.args)
+        if self.args != ():
+            return self.current()(self.args)
+        else:
+            return self.current()()
 
     def __get_versions(self):
         if not type(self.versions()) == list:
@@ -49,5 +52,6 @@ class Version(Zenatonable):
         if not len(self.versions()) > 0:
             raise ExternalError
         for version in self.versions():
-            if not issubclass(type(version), Workflow):
+            if not issubclass(version, Workflow):
                 raise ExternalError
+        return self.versions()

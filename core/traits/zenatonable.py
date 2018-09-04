@@ -7,7 +7,6 @@ class Zenatonable:
         Sends self as the single job to be executed
         to the engine and returns the result
     """
-
     def dispatch(self):
         return Engine().dispatch([self])
 
@@ -15,7 +14,6 @@ class Zenatonable:
         Sends self as the single job to be dispatched
         to the engine and returns the result
     """
-
     def execute(self):
         return Engine().execute([self])[0]
 
@@ -25,6 +23,5 @@ class Zenatonable:
         :param String id ID for a given worflow
         :returns .query.builder.Builder a query builder object
     """
-
     def where_id(self, workflow_id):
         return Builder(type(self)).where_id(workflow_id)
