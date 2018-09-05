@@ -110,7 +110,7 @@ class Client(metaclass=Singleton):
             self.ATTR_PROG: self.PROG,
             self.ATTR_NAME: workflow_name,
             self.ATTR_ID: custom_id,
-            self.EVENT_NAME: event.__name__,
+            self.EVENT_NAME: type(event).__name__,
             self.EVENT_INPUT: '{\"o\":\"@zenaton#0\",\"s\":[{\"a\":{}}]}',
         })
         self.http.post(self.send_event_url(), body)

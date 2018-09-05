@@ -50,11 +50,11 @@ class WithDuration:
     def __push(self, key, value=1):
         if not hasattr(self, 'buffer') is None:
             self.buffer = {}
-        else:
-            self.buffer[key] = value
+        self.buffer[key] = value
 
     def __apply_duration(self, time_unit, time_value, time):
-        return time + datetime.timedelta(time_unit=time_value)
+        args = {str(time_unit): int(time_value)}
+        return time + datetime.timedelta(**args)
 
     def __diff_in_secondes(self, before, after):
         return (after - before) / datetime.timedelta(seconds=1)

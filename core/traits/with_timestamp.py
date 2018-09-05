@@ -77,7 +77,7 @@ class WithTimestamp(WithDuration):
         elif method == 'on_day':
             return self.on_day(value, now, now_dup)
         else:
-            return self.__apply_duration(method, value, now)
+            return self._WithDuration__apply_duration(method, value, now)
 
     def __weekday(self, value, day, now_dup):
         self.__set_mode(self.MODE_WEEK_DAY)

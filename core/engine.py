@@ -45,7 +45,6 @@ class Engine(metaclass=Singleton):
         if issubclass(job.__class__, Workflow):
             self.client.start_workflow(job)
         else:
-            print('TOTO')
             job.handle()
 
     def check_argument(self, job):

@@ -23,5 +23,7 @@ class Zenatonable:
         :param String id ID for a given worflow
         :returns .query.builder.Builder a query builder object
     """
-    def where_id(self, workflow_id):
-        return Builder(type(self)).where_id(workflow_id)
+
+    @classmethod
+    def where_id(cls, workflow_id):
+        return Builder(cls).where_id(workflow_id)
