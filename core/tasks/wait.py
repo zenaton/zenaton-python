@@ -14,7 +14,8 @@ class Wait(Task, Zenatonable, WithTimestamp):
         super(Wait, self).__init__()
         if not self.valid_param(event):
             raise ExternalError(self.error)
-        self.event = event.__name__
+        if event:
+            self.event = event.__name__
 
     @property
     def error(self):
