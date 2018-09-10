@@ -82,9 +82,6 @@ class Client(metaclass=Singleton):
                            self.ATTR_PROG: self.PROG,
                            self.ATTR_CANONICAL: self.canonical_name(flow),
                            self.ATTR_NAME: self.class_name(flow),
-                           # TO DO
-                           # self.ATTR_DATA: '{\"o\":\"@zenaton#0\",\"s\":[{\"a\":{}}]}',
-                           # self.ATTR_DATA: '{\"o\":\"@zenaton#0\",\"s\":[{\"a\":' + json.dumps(vars(flow)) + '}]}',
                            self.ATTR_DATA: self.serializer.encode(self.properties.from_(flow)),
                            self.ATTR_ID: self.parse_custom_id_from(flow)
                        }))
