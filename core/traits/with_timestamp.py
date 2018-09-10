@@ -17,7 +17,7 @@ class WithTimestamp(WithDuration):
     timezone = 'UTC'
 
     def get_timetamp_or_duration(self):
-        if self.buffer is None:
+        if getattr(self, 'buffer', None) is None:
             return [None, None]
         now, now_dup = self._WithDuration__init_now_then()
         self.mode = None

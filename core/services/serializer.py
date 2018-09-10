@@ -1,13 +1,16 @@
+import json
+
+
 class Serializer:
 
     def __init__(self):
         pass
 
     def encode(self, data):
-        pass
+        return '{\"o\":\"@zenaton#0\",\"s\":[{\"a\":' + json.dumps(data, sort_keys=True) + '}]}'
 
     def decode(self, json_string):
-        pass
+        return json.loads(json_string)['s'][0]['a']
 
     def __is_basic_type(self, data):
         pass

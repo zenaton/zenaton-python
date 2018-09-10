@@ -10,11 +10,11 @@ class Properties:
         return output
 
     def from_(self, object_):
-        pass
+        return vars(object_)
 
-    def set(self, object_, *properties):
+    def set(self, object_, properties):
         if properties != (None,) and properties is not None:
-            for (key, value) in properties:
+            for key, value in properties.items():
                 setattr(object_, key, value)
 
     def object_from(self, class_, properties, super_class=None):

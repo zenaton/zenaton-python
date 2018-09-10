@@ -3,12 +3,11 @@ import os
 
 from .exceptions import InvalidArgumentError
 from .services.http_service import HttpService
+from .services.properties import Properties
+from .services.serializer import Serializer
 from .singleton import Singleton
 from .workflows.version import Version
 
-
-# from .services.serializer import Serializer
-# from .services.properties import Properties
 
 class Client(metaclass=Singleton):
 
@@ -44,8 +43,8 @@ class Client(metaclass=Singleton):
         self.api_token = api_token
         self.app_env = app_env
         self.http = HttpService()
-        # self.serializer = Serializer()
-        # self.properties = Properties()
+        self.serializer = Serializer()
+        self.properties = Properties()
 
     """
         Gets the url for the workers
@@ -84,12 +83,14 @@ class Client(metaclass=Singleton):
                            self.ATTR_CANONICAL: self.canonical_name(flow),
                            self.ATTR_NAME: self.class_name(flow),
                            # TO DO
-                           self.ATTR_DATA: '{\"o\":\"@zenaton#0\",\"s\":[{\"a\":{}}]}',
+                           # self.ATTR_DATA: '{\"o\":\"@zenaton#0\",\"s\":[{\"a\":{}}]}',
+                           # self.ATTR_DATA: '{\"o\":\"@zenaton#0\",\"s\":[{\"a\":' + json.dumps(vars(flow)) + '}]}',
+                           self.ATTR_DATA: self.serializer.encode(self.properties.from_(flow)),
                            self.ATTR_ID: self.parse_custom_id_from(flow)
                        }))
 
     def update_instance(self, workflow_name, custom_id, mode):
-        params = '{}={}'.format_map(self.ATTR_ID, custom_id)
+        params = '{}={}'.format(self.ATTR_ID, custom_id)
         url = self.instance_worker_url()
         options = {
             self.ATTR_PROG: self.PROG,
