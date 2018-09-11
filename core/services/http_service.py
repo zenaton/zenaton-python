@@ -25,13 +25,20 @@ class HttpService:
     def request(self, method, url, headers, data=None):
         try:
             r = requests.request(method=method, url=url, headers=headers, data=data)
-            content = r.json()
             if r.status_code >= 400:
                 raise InternalError(r.content)
+            content = r.json()
         except json.decoder.JSONDecodeError:
             raise InternalError
         except requests.exceptions.ConnectionError:
             raise ConnectionError
+        if False:
+            print('\n')
+            print(method)
+            print(headers)
+            print(url)
+            print(json.dumps(data))
+            print(content)
         return content
 
     """GET function, calls with the right arguments request()"""
@@ -44,4 +51,7 @@ class HttpService:
 
     """PUT function, calls with the right arguments request()"""
     def put(self, url, data=None):
+        print('PUT')
+        print(url)
+        print(data)
         return self.request(method='PUT', url=url, headers=self.HEADER, data=data)

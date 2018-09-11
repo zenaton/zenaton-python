@@ -86,14 +86,14 @@ class Client(metaclass=Singleton):
                            self.ATTR_ID: self.parse_custom_id_from(flow)
                        }))
 
-    def update_instance(self, workflow_name, custom_id, mode):
+    def update_instance(self, workflow, custom_id, mode):
         params = '{}={}'.format(self.ATTR_ID, custom_id)
-        url = self.instance_worker_url()
-        options = {
+        url = self.instance_worker_url(params)
+        options = json.dumps({
             self.ATTR_PROG: self.PROG,
-            self.ATTR_NAME: workflow_name,
+            self.ATTR_NAME: workflow.__name__,
             self.ATTR_MODE: mode
-        }
+        })
         self.http.put(url, options)
 
     """
