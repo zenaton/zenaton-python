@@ -10,6 +10,8 @@ class Properties:
         return output
 
     def from_(self, object_):
+        if hasattr(object_, 'buffer'):
+            return object_.buffer
         return vars(object_)
 
     def set(self, object_, properties):
