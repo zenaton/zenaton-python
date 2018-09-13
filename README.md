@@ -46,7 +46,7 @@ class MyWorkflow(Workflow, Zenatonable):
 
     def handle(self):
         # Your Workflow implementation
-        MyTask().execute # For examples
+        MyTask().execute() # For example
 ```
 
 We can create a workflow in `workflows/my_workflow.py`.
