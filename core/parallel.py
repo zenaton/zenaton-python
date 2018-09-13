@@ -12,8 +12,8 @@ class Parallel:
 
     # Execute synchronous jobs
     def execute(self):
-        Engine().execute(self.items)
+        return Engine().execute(self.items)
 
     # Dispatches synchronous jobs
     def dispatch(self):
-        Engine().dispatch(self.items)
+        return Engine().dispatch(self.items)

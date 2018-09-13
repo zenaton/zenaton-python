@@ -1,73 +1,56 @@
-from .client import Client
-from .traits.zenatonable import Zenatonable
-from .abstracts.workflow import Workflow
-from .abstracts.event import Event
-from .abstracts.task import Task
-from .parallel import Parallel
-
-import sys
-import trace
+"""import datetime, os
+LOCAL_TIMEZONE = datetime.datetime.now(datetime.timezone.utc).astimezone().tzinfo
+print(LOCAL_TIMEZONE)
+# print(os.environ[])
 
 
-appId = 'COZLVYTWHQ'
-appToken = 'hf1mIIyoKdfW8p71GUkHUwa7fLJYgrhXhhSAVR6XCofdaDuJ5p9QFkJq1uyo'
-appEnv = 'dev'
 
-client = Client(appId, appToken, appEnv)
+class Test:
+    class_var = 1
 
-class TaskA(Task, Zenatonable):
+    def __init__(self):
+        pass
 
-    def handle(self):
-        print('Task A')
-        return 'Task A'
+    def get_value(self):
+        return self.class_var
 
-
-class TaskB(Task, Zenatonable):
-
-    def handle(self):
-        print('Task B')
-        return 'Task B'
-
-class TaskC(Task, Zenatonable):
-
-    def handle(self):
-        print('Task C')
-        return 'Task C'
+    def set_value(self, value):
+        self.__class__.class_var = value
 
 
-class SequentialWorkflow(Workflow, Zenatonable):
 
-    def handle(self):
-        TaskA().execute()
-        TaskB().execute()
+test_instance1 = Test()
+print(test_instance1.class_var)
+test_instance1.set_value(value=2)
+Test().set_value(value=2)
+# Test.class_var = 2
+test_instance2 = Test()
+print(test_instance2.class_var)
+print(test_instance1.class_var)
+
+now = datetime.datetime.now()
+print(now)
+now = now.replace(day=23)
+print(now)
+
+print(now.month)"""
 
 
-class ParallelWorkflow(Workflow, Zenatonable):
+class WithDuration:
+    def __test(self):
+        print('__init_now_then')
 
-    def handle(self):
-        Parallel(TaskA(), TaskB()).execute()
 
-
-class MyEvent(Event):
+class WithTimestamp(WithDuration):
     pass
 
 
-class EventWorkflow(Workflow, Zenatonable):
-
-    def handle(self):
-        TaskA.execute()
-        TaskB.execute()
-
-    def on_event(self, event):
-        if issubclass(type(event), MyEvent):
-            TaskC.execute()
-
-    def id(self):
-        return 'MyId'
+class Wait(WithTimestamp):
+    pass
 
 
-# tracer = trace.Trace(ignoredirs=[sys.prefix, sys.exec_prefix],trace=0,count=1)
-# tracer.runfunc(SequentialWorkflow().dispatch)
-# tracer.runfunc(EventWorkflow().dispatch)
+# Wait().__test()
 
-EventWorkflow().where_id(workflow_id='MyId').send_event(MyEvent())
+import time
+
+print(time.time())
