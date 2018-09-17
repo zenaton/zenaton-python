@@ -1,8 +1,7 @@
 import inspect
 
-from Zenaton.core.abstracts.event import Event
-from Zenaton.core.abstracts.task import Task
-
+from ..abstracts.event import Event
+from ..abstracts.task import Task
 from ..exceptions import ExternalError
 from ..traits.with_timestamp import WithTimestamp
 from ..traits.zenatonable import Zenatonable
