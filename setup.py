@@ -17,7 +17,7 @@ def read(filename):
 
 setup(
     name='zenaton',
-    version='0.2.0',
+    version='0.2.1',
     author='Zenaton',
     author_email='yann@zenaton.com',
     description='Zenaton client library',
@@ -41,11 +41,5 @@ setup(
         'requests',
         'pytz'
     ],
-    zip_safe=False,
-    entry_points={
-        'console_scripts': [
-            'zenaton_init = zenaton.scripts.init:main',
-            'zenaton_slave = zenaton.scripts.slave:main',
-        ],
-    },
+    zip_safe=False
 )

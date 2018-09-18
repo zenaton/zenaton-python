@@ -1,4 +1,7 @@
 ## Change Log
 
+# 0.2.1
+Reorganized modules
+
 # 0.2.0
-Full rewritting of the package
+Full rewriting of the package

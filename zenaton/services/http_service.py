@@ -23,6 +23,12 @@ class HttpService:
         :returns: the request's response content
     """
     def request(self, method, url, headers, data=None):
+        if True:
+            print('\n')
+            print(method)
+            print(headers)
+            print(url)
+            print(json.dumps(data))
         try:
             r = requests.request(method=method, url=url, headers=headers, data=data)
             if r.status_code >= 400:
