@@ -8,16 +8,17 @@ from io import open
 
 from setuptools import find_packages, setup
 
+import zenaton
+
 
 def read(filename):
     path = os.path.join(os.path.dirname(__file__), filename)
     with open(path, encoding='utf-8') as f:
         return f.read()
 
-
 setup(
     name='zenaton',
-    version='0.2.1',
+    version=zenaton.__version__,
     author='Zenaton',
     author_email='yann@zenaton.com',
     description='Zenaton client library',

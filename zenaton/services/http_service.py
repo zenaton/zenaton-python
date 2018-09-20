@@ -23,7 +23,7 @@ class HttpService:
         :returns: the request's response content
     """
     def request(self, method, url, headers, data=None):
-        if True:
+        if False:
             print('\n')
             print(method)
             print(headers)
@@ -38,13 +38,6 @@ class HttpService:
             raise InternalError
         except requests.exceptions.ConnectionError:
             raise ConnectionError
-        if False:
-            print('\n')
-            print(method)
-            print(headers)
-            print(url)
-            print(json.dumps(data))
-            print(content)
         return content
 
     """GET function, calls with the right arguments request()"""
