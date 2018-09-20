@@ -1,8 +1,7 @@
 import os
 
-from dotenv import load_dotenv
-
 import pytest
+from dotenv import load_dotenv
 
 from zenaton.client import Client
 
@@ -28,4 +27,3 @@ def FakeClient():
 
 
 client = Client(app_id, api_token, app_env)
-print(client)
