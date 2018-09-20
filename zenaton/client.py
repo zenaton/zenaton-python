@@ -1,6 +1,7 @@
 import json
 import os
 
+from .abstracts.workflow import Workflow
 from .exceptions import InvalidArgumentError
 from .services.http_service import HttpService
 from .services.properties import Properties
@@ -66,7 +67,7 @@ class Client(metaclass=Singleton):
     """
     def website_url(self, resource='', params=''):
         api_url = os.environ.get('ZENATON_API_URL') or self.ZENATON_API_URL
-        url = '{}/{}?{}={}&'.format(api_url, resource, self.API_TOKEN, params)
+        url = '{}/{}?{}={}&'.format(api_url, resource, self.API_TOKEN, self.api_token)
         return self.add_app_env(url, params)
 
     def send_event_url(self):
@@ -119,13 +120,27 @@ class Client(metaclass=Singleton):
         :param String custom_id the custom ID of the workflow (if any)
         :return .abstracts.workflow.Workflow
     """
-    def find_workflow(self, workflow_name, custom_id):
 
-        params = '{}={}&{}={}&{}={}'.format(self.ATTR_ID, custom_id, self.ATTR_NAME, workflow_name, self.ATTR_PROG,
-                                            self.PROG)
-        data = self.http.get(self.instance_website_url(params))['data']
-        # TO DO
-        pass
+    def find_workflow(self, workflow, custom_id):
+
+        params = '{}={}&{}={}&{}={}'.format(
+            self.ATTR_ID,
+            custom_id,
+            self.ATTR_NAME,
+            workflow.__name__,
+            self.ATTR_PROG,
+            self.PROG)
+        response = self.http.get(self.instance_website_url(params))
+
+        if response.get('data', None) is not None:
+            data = response['data']
+            return self.properties.object_from(
+                workflow,
+                self.serializer.decode(data['properties']),
+                Workflow
+            )
+        else:
+            return None
 
     """
         Stops a workflow
