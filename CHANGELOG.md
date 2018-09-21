@@ -1,5 +1,8 @@
 ## Change Log
 
+#0.2.3
+Minor enhancements (including the workflow find() method)
+
 #0.2.2
 New version scheme management
 

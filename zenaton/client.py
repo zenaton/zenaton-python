@@ -78,8 +78,8 @@ class Client(metaclass=Singleton):
         :params .abstracts.workflow.Workflow flow
     """
     def start_workflow(self, flow):
-        self.http.post(self.instance_worker_url(),
-                       data=json.dumps({
+        return self.http.post(self.instance_worker_url(),
+                              data=json.dumps({
                            self.ATTR_PROG: self.PROG,
                            self.ATTR_CANONICAL: self.canonical_name(flow),
                            self.ATTR_NAME: self.class_name(flow),
@@ -95,7 +95,7 @@ class Client(metaclass=Singleton):
             self.ATTR_NAME: workflow.__name__,
             self.ATTR_MODE: mode
         })
-        self.http.put(url, options)
+        return self.http.put(url, options)
 
     """
         Sends an event to a workflow
@@ -112,7 +112,7 @@ class Client(metaclass=Singleton):
             self.EVENT_NAME: type(event).__name__,
             self.EVENT_INPUT: '{\"o\":\"@zenaton#0\",\"s\":[{\"a\":{}}]}',
         })
-        self.http.post(self.send_event_url(), body)
+        return self.http.post(self.send_event_url(), body)
 
     """
         Finds a workflow
@@ -149,7 +149,7 @@ class Client(metaclass=Singleton):
         :returns None
     """
     def kill_workflow(self, workflow_name, custom_id):
-        self.update_instance(workflow_name, custom_id, self.WORKFLOW_KILL)
+        return self.update_instance(workflow_name, custom_id, self.WORKFLOW_KILL)
 
     """
         Pauses a workflow
@@ -158,7 +158,7 @@ class Client(metaclass=Singleton):
         :returns None
     """
     def pause_workflow(self, workflow_name, custom_id):
-        self.update_instance(workflow_name, custom_id, self.WORKFLOW_PAUSE)
+        return self.update_instance(workflow_name, custom_id, self.WORKFLOW_PAUSE)
 
     """
         Resumes a workflow
@@ -167,7 +167,7 @@ class Client(metaclass=Singleton):
         :returns None
     """
     def resume_workflow(self, workflow_name, custom_id):
-        self.update_instance(workflow_name, custom_id, self.WORKFLOW_RUN)
+        return self.update_instance(workflow_name, custom_id, self.WORKFLOW_RUN)
 
     def instance_website_url(self, params=''):
         return self.website_url('instances', params)
@@ -182,12 +182,12 @@ class Client(metaclass=Singleton):
 
     def parse_custom_id_from(self, flow):
         custom_id = flow.id()
-        if custom_id:
+        if custom_id is not None:
             if not isinstance(custom_id, str) and not isinstance(custom_id, int):
                 raise InvalidArgumentError('Provided ID must be a string or an integer')
             custom_id = str(custom_id)
             if len(custom_id) > self.MAX_ID_SIZE:
-                raise InvalidArgumentError('Provided Id must not exceed {} bytes'.format_map(self.MAX_ID_SIZE))
+                raise InvalidArgumentError('Provided Id must not exceed {} bytes'.format(self.MAX_ID_SIZE))
         return custom_id
 
     def canonical_name(self, flow):

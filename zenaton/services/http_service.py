@@ -34,6 +34,7 @@ class HttpService:
             if r.status_code >= 400:
                 raise InternalError(r.content)
             content = r.json()
+            content['status_code'] = r.status_code
         except json.decoder.JSONDecodeError:
             raise InternalError
         except requests.exceptions.ConnectionError:

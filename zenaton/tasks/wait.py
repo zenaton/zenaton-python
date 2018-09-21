@@ -18,14 +18,14 @@ class Wait(Task, Zenatonable, WithTimestamp):
 
     @property
     def error(self):
-        return '{}: Invalid parameter - argument must be a Zenaton::Interfaces::Event subclass'.format(
+        return '{}: Invalid parameter - argument must be a zenaton.abstracts.event.Event subclass'.format(
             self.__class__.__name__)
 
     def handle(self):
         pass
 
     def valid_param(self, event):
-        return not hasattr(self, 'event') or isinstance(event, str) or self.event_class(event)
+        return not event or isinstance(event, str) or self.event_class(event)
 
     def event_class(self, event):
         return inspect.isclass(event) and issubclass(event, Event)
