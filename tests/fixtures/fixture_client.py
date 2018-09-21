@@ -22,8 +22,5 @@ if not app_env:
 
 
 @pytest.fixture
-def FakeClient():
+def client():
     return Client(app_id, api_token, app_env)
-
-
-client = Client(app_id, api_token, app_env)

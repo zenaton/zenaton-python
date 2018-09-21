@@ -6,5 +6,5 @@ class DummyClass:
 
 
 @pytest.fixture
-def DummyObject():
+def dummy_object():
     return DummyClass()
