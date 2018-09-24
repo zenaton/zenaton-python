@@ -48,9 +48,12 @@ class WithDuration:
         return now, copy.deepcopy(now)
 
     def __push(self, key, value=1):
-        if not hasattr(self, 'buffer') is None:
+        if not hasattr(self, 'buffer'):
             self.buffer = {}
-        self.buffer[key] = value
+        if not self.buffer.get(key):
+            self.buffer[key] = value
+        else:
+            self.buffer[key] += value
 
     def __apply_duration(self, time_unit, time_value, time):
         args = {str(time_unit): int(time_value)}

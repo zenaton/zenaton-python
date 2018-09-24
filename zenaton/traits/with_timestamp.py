@@ -73,7 +73,7 @@ class WithTimestamp(WithDuration):
         elif method == 'timestamp':
             return self.__timestamp(value)
         elif method == 'at':
-            return self.at(value, now, now_dup)
+            return self.__at(value, now, now_dup)
         elif method == 'on_day':
             return self.on_day(value, now, now_dup)
         else:
@@ -97,10 +97,9 @@ class WithTimestamp(WithDuration):
 
     def __at(self, time, now, now_dup):
         self.__set_mode(self.MODE_AT)
-        hour = int(time.hour)
-        min = int(time.minute)
-        sec = int(time.second)
-        now_dup = now_dup.replace(hour=hour, minute=min, second=sec)
+        hour, minute, second = time.split(':')
+        hour, minute, second = int(hour), int(minute), int(second)
+        now_dup = now_dup.replace(hour=hour, minute=minute, second=second)
         if now > now_dup:
             now += self.__delay()
         return now_dup
@@ -123,10 +122,11 @@ class WithTimestamp(WithDuration):
         return now_dup
 
     def __set_mode(self, mode):
+        if not hasattr(self, 'mode'):
+            self.mode = mode
+            return
         if mode == self.mode or self.__is_timestamp_mode_set(mode):
             raise ExternalError('Incompatible definition in Wait methods')
-        if self.mode is None:
-            self.mode = mode
         else:
             self.mode = self.MODE_AT
 

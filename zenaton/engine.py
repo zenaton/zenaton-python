@@ -41,7 +41,6 @@ class Engine(metaclass=Singleton):
             self.processor.process(jobs, False)
 
     def local_dispatch(self, job):
-        # if True:
         if issubclass(job.__class__, Workflow):
             self.client.start_workflow(job)
         else:
