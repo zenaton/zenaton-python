@@ -112,10 +112,11 @@ dmypy.json
 
 .idea
 
+*.pyc
 
-zenaton.out
-zenaton.err
-zenaton.log
+*.out
+*.err
+*.log
 
 
 

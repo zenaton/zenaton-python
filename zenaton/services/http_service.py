@@ -51,7 +51,4 @@ class HttpService:
 
     """PUT function, calls with the right arguments request()"""
     def put(self, url, data=None):
-        print('PUT')
-        print(url)
-        print(data)
         return self.request(method='PUT', url=url, headers=self.HEADER, data=data)
