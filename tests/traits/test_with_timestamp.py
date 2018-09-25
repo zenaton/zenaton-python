@@ -1,8 +1,33 @@
 import pytest
 import datetime
+import time
 
 from zenaton.tasks.wait import Wait
 from zenaton.exceptions import ExternalError
+
+
+@pytest.mark.usefixtures("wait")
+def test_get_timetamp_or_duration_day_of_month(wait):
+    now = datetime.datetime.now()
+    wait.set_timezone('Europe/Paris')
+    wait.day_of_month(now.day + 1)
+    assert wait.get_timetamp_or_duration()[0] - int(now.timestamp()) == 24 * 60 * 60
+
+
+@pytest.mark.usefixtures("wait")
+def test_get_timetamp_or_duration_at(wait):
+    now = datetime.datetime.now()
+    wait.set_timezone('Europe/Paris')
+    wait.at('{}:{}:{}'.format(now.hour + 1, now.minute, now.second))
+    assert wait.get_timetamp_or_duration()[0] - int(now.timestamp()) == 60 * 60
+
+
+@pytest.mark.usefixtures("wait")
+def test_get_timetamp_or_duration_timestamp(wait):
+    now_timestamp = int(datetime.datetime.now().timestamp())
+    wait.set_timezone('Europe/Paris')
+    wait.timestamp(now_timestamp + 10.0)
+    assert wait.get_timetamp_or_duration()[0] - now_timestamp == 10
 
 
 @pytest.mark.usefixtures("wait")
