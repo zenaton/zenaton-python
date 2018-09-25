@@ -25,7 +25,9 @@ class WithTimestamp(WithDuration):
             now_dup = self.__apply(time_unit, time_value, now, now_dup)
         if self.mode is None:
             return [None, self._WithDuration__diff_in_secondes(now, now_dup)]
-        return [int(now_dup), None]
+        if self.mode == self.MODE_TIMESTAMP:
+            return [int(now_dup), None]
+        return [int(now_dup.timestamp()), None]
 
     def timestamp(self, value):
         self._WithDuration__push('timestamp', value)
@@ -35,8 +37,8 @@ class WithTimestamp(WithDuration):
         self._WithDuration__push('at', value)
         return self
 
-    def on_day(self, value):
-        self._WithDuration__push('on_day', value)
+    def day_of_month(self, value):
+        self._WithDuration__push('day_of_month', value)
         return self
 
     def monday(self, value):
@@ -74,8 +76,8 @@ class WithTimestamp(WithDuration):
             return self.__timestamp(value)
         elif method == 'at':
             return self.__at(value, now, now_dup)
-        elif method == 'on_day':
-            return self.on_day(value, now, now_dup)
+        elif method == 'day_of_month':
+            return self.__day_of_month(value, now, now_dup)
         else:
             return self._WithDuration__apply_duration(method, value, now)
 
@@ -114,7 +116,7 @@ class WithTimestamp(WithDuration):
         else:
             raise InternalError('Unknown mode: {}'.format(self.mode))
 
-    def __on_day(self, day, now, now_dup):
+    def __day_of_month(self, day, now, now_dup):
         self.__set_mode(self.MODE_MONTH_DAY)
         now_dup = now_dup.replace(day=day)
         if now > now_dup:
@@ -122,7 +124,7 @@ class WithTimestamp(WithDuration):
         return now_dup
 
     def __set_mode(self, mode):
-        if not hasattr(self, 'mode'):
+        if not hasattr(self, 'mode') or self.mode is None:
             self.mode = mode
             return
         if mode == self.mode or self.__is_timestamp_mode_set(mode):
@@ -137,6 +139,7 @@ class WithTimestamp(WithDuration):
         if not self.__is_valid_timezone(timezone):
             raise ExternalError('Unknown timezone')
         self.__class__.timezone = timezone
+        return self
 
     def __is_valid_timezone(self, timezone):
         return timezone in pytz.all_timezones
