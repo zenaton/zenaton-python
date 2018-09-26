@@ -4,6 +4,7 @@ import datetime
 
 @pytest.mark.usefixtures("wait")
 def test_get_duration(wait):
+
     def assert_duration():
         assert wait.get_duration() == duration
 
@@ -32,18 +33,37 @@ def test_get_duration(wait):
 
 
 @pytest.mark.usefixtures("wait")
+def test_time_functions(wait):
+    for name in ['seconds', 'minutes', 'hours', 'days', 'weeks']:
+        getattr(wait, name)(1)
+        assert wait.buffer[name] == 1
+        getattr(wait, name)(1)
+        assert wait.buffer[name] == 2
+        wait.buffer = {}
+    wait.months(1)
+    assert 28 <= wait.buffer['days'] <= 31
+    wait.months(1)
+    assert 59 <= wait.buffer['days'] <= 62
+    wait.buffer = {}
+    wait.years(1)
+    assert wait.buffer['days'] in [364, 365]
+    wait.years(1)
+    assert wait.buffer['days'] in [729, 730]
+
+
+@pytest.mark.usefixtures("wait")
 def test_add_months(wait):
     days = wait.months_to_days(1)
-    assert days >= 28 and days <= 31
+    assert 28 <= days <= 31
     days = wait.months_to_days(2)
-    assert days >= 56 and days <= 62
+    assert 56 <= days <= 62
     assert wait.months_to_days(12) == 365
 
 
 @pytest.mark.usefixtures("wait")
 def test_add_years(wait):
     days = wait.years_to_days(1)
-    assert days == 365 or days == 364
+    assert days in [364, 365]
 
 
 @pytest.mark.usefixtures("wait")
