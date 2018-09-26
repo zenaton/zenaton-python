@@ -114,7 +114,8 @@ class WithTimestamp(WithDuration):
         elif self.mode == self.MODE_WEEK_DAY:
             return datetime.timedelta(weeks=1)
         elif self.mode == self.MODE_MONTH_DAY:
-            return datetime.timedelta(months=1)
+            days = self.months_to_days(1)
+            return datetime.timedelta(days=days)
         else:
             raise InternalError('Unknown mode: {}'.format(self.mode))
 

@@ -11,33 +11,32 @@ from .workflows.version import Version
 
 
 class Client(metaclass=Singleton):
+    ZENATON_API_URL = 'https://zenaton.com/api/v1'  # Zenaton api url
+    ZENATON_WORKER_URL = 'http://localhost'  # Default worker url
+    DEFAULT_WORKER_PORT = 4001  # Default worker port
+    WORKER_API_VERSION = 'v_newton'  # Default worker api version
 
-    ZENATON_API_URL = 'https://zenaton.com/api/v1' # Zenaton api url
-    ZENATON_WORKER_URL = 'http://localhost' # Default worker url
-    DEFAULT_WORKER_PORT = 4001 # Default worker port
-    WORKER_API_VERSION = 'v_newton' # Default worker api version
+    MAX_ID_SIZE = 256  # Limit on length of custom ids
 
-    MAX_ID_SIZE = 256 # Limit on length of custom ids
+    APP_ENV = 'app_env'  # Parameter name for the application environment
+    APP_ID = 'app_id'  # Parameter name for the application ID
+    API_TOKEN = 'api_token'  # Parameter name for the API token
 
-    APP_ENV = 'app_env' # Parameter name for the application environment
-    APP_ID = 'app_id' # Parameter name for the application ID
-    API_TOKEN = 'api_token' # Parameter name for the API token
-
-    ATTR_ID = 'custom_id' # Parameter name for custom ids
-    ATTR_NAME = 'name' # Parameter name for workflow names
+    ATTR_ID = 'custom_id'  # Parameter name for custom ids
+    ATTR_NAME = 'name'  # Parameter name for workflow names
     ATTR_CANONICAL = 'canonical_name' # Parameter name for version name
-    ATTR_DATA = 'data' # Parameter name for json payload
-    ATTR_PROG = 'programming_language' # Parameter name for the language
-    ATTR_MODE = 'mode' # Parameter name for the worker update mode
+    ATTR_DATA = 'data'  # Parameter name for json payload
+    ATTR_PROG = 'programming_language'  # Parameter name for the language
+    ATTR_MODE = 'mode'  # Parameter name for the worker update mode
 
     PROG = 'Python'  # The current programming language
 
-    EVENT_INPUT = 'event_input' # Parameter name for event data
-    EVENT_NAME = 'event_name' # Parameter name for event name
+    EVENT_INPUT = 'event_input'  # Parameter name for event data
+    EVENT_NAME = 'event_name'  # Parameter name for event name
 
-    WORKFLOW_KILL = 'kill' # Worker update mode to stop a worker
-    WORKFLOW_PAUSE = 'pause' # Worker udpate mode to pause a worker
-    WORKFLOW_RUN = 'run' # Worker update mode to resume a worker
+    WORKFLOW_KILL = 'kill'  # Worker update mode to stop a worker
+    WORKFLOW_PAUSE = 'pause'  # Worker udpate mode to pause a worker
+    WORKFLOW_RUN = 'run'  # Worker update mode to resume a worker
 
     def __init__(self, app_id, api_token, app_env):
         self.app_id = app_id
@@ -80,11 +79,11 @@ class Client(metaclass=Singleton):
     def start_workflow(self, flow):
         return self.http.post(self.instance_worker_url(),
                               data=json.dumps({
-                           self.ATTR_PROG: self.PROG,
-                           self.ATTR_CANONICAL: self.canonical_name(flow),
-                           self.ATTR_NAME: self.class_name(flow),
-                           self.ATTR_DATA: self.serializer.encode(self.properties.from_(flow)),
-                           self.ATTR_ID: self.parse_custom_id_from(flow)
+                                  self.ATTR_PROG: self.PROG,
+                                  self.ATTR_CANONICAL: self.canonical_name(flow),
+                                  self.ATTR_NAME: self.class_name(flow),
+                                  self.ATTR_DATA: self.serializer.encode(self.properties.from_(flow)),
+                                  self.ATTR_ID: self.parse_custom_id_from(flow)
                        }))
 
     def update_instance(self, workflow, custom_id, mode):

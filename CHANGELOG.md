@@ -1,5 +1,8 @@
 ## Change Log
 
+# [0.2.4] - 2018/09/26
+Enhanced WithDuration & WithTimestamp classes
+
 # [0.2.3] - 2018/09/21
 Minor enhancements (including the workflow find() method)
 
