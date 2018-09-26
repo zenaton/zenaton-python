@@ -8,7 +8,7 @@ from ..exceptions import ExternalError, InternalError
 
 
 class WithTimestamp(WithDuration):
-    WEEKDAYS = {'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'}
+    WEEKDAYS = ('monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday')
     MODE_AT = 'AT'  # When specifying a time
     MODE_WEEK_DAY = 'WEEK_DAY'  # When specifying a day of the week
     MODE_MONTH_DAY = 'MONTH_DAY'  # When specifying a day of the month
@@ -41,31 +41,31 @@ class WithTimestamp(WithDuration):
         self._WithDuration__push('day_of_month', value)
         return self
 
-    def monday(self, value):
+    def monday(self, value=1):
         self._WithDuration__push('monday', value)
         return self
 
-    def tuesday(self, value):
+    def tuesday(self, value=1):
         self._WithDuration__push('tuesday', value)
         return self
 
-    def wednesday(self, value):
+    def wednesday(self, value=1):
         self._WithDuration__push('wednesday', value)
         return self
 
-    def thursday(self, value):
+    def thursday(self, value=1):
         self._WithDuration__push('thursday', value)
         return self
 
-    def friday(self, value):
+    def friday(self, value=1):
         self._WithDuration__push('friday', value)
         return self
 
-    def saturday(self, value):
+    def saturday(self, value=1):
         self._WithDuration__push('saturday', value)
         return self
 
-    def sunday(self, value):
+    def sunday(self, value=1):
         self._WithDuration__push('sunday', value)
         return self
 
@@ -85,9 +85,11 @@ class WithTimestamp(WithDuration):
         self.__set_mode(self.MODE_WEEK_DAY)
         for _ in itertools.repeat(None, value):
             now_dup = self.__next_weekday(now_dup, day)
+        return now_dup
 
     # https://stackoverflow.com/questions/6558535/
     def __next_weekday(self, d, weekday):
+        weekday = self.WEEKDAYS.index(weekday)
         days_ahead = weekday - d.weekday()
         if days_ahead <= 0:  # Target day already happened this week
             days_ahead += 7
@@ -120,7 +122,7 @@ class WithTimestamp(WithDuration):
         self.__set_mode(self.MODE_MONTH_DAY)
         now_dup = now_dup.replace(day=day)
         if now > now_dup:
-            now_dup = now_dup.replace(now_dup.month + 1)
+            now_dup = now_dup.replace(month=now_dup.month + 1)
         return now_dup
 
     def __set_mode(self, mode):
