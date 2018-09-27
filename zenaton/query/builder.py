@@ -4,10 +4,11 @@ from ..exceptions import ExternalError
 
 class Builder:
     """Wrapper class around the client to interact with workflows by id"""
-    def __init__(self, klass):
+
+    def __init__(self, class_):
         from ..client import Client
-        self.check_klass(klass)
-        self.klass = klass
+        self.check_class(class_)
+        self.class_ = class_
         self.client = Client()
 
     """
@@ -24,7 +25,7 @@ class Builder:
         returns Workflow
     """
     def find(self):
-        return self.client.find_workflow(self.klass, self.id)
+        return self.client.find_workflow(self.class_, self.id)
 
     """
         Sends an event to a workflow
@@ -32,14 +33,14 @@ class Builder:
         :returns query.builder the current builder
     """
     def send_event(self, event):
-        self.client.send_event(self.klass.__name__, self.id, event)
+        self.client.send_event(self.class_.__name__, self.id, event)
 
     """
         Kills a workflow
         :returns query.builder.Builder the current builder
     """
     def kill(self):
-        self.client.kill_workflow(self.klass, self.id)
+        self.client.kill_workflow(self.class_, self.id)
         return self
 
     """
@@ -47,7 +48,7 @@ class Builder:
         :returns query.builder.Builder the current builder
     """
     def pause(self):
-        self.client.pause_workflow(self.klass, self.id)
+        self.client.pause_workflow(self.class_, self.id)
         return self
 
     """
@@ -55,14 +56,15 @@ class Builder:
         :returns query.builder.Builder the current builder
     """
     def resume(self):
-        self.client.resume_workflow(self.klass, self.id)
+        self.client.resume_workflow(self.class_, self.id)
         return self
 
     """
-        Checks if klass is subclass of Workflow
-        :param class klass
+        Checks if class_ is subclass of Workflow
+        :param class class_
     """
-    def check_klass(self, klass):
-        msg = '{} should be a subclass of .abstracts.workflow'.format(klass)
-        if not issubclass(klass, Workflow):
+
+    def check_class(self, class_):
+        msg = '{} should be a subclass of .abstracts.workflow'.format(class_)
+        if not issubclass(class_, Workflow):
             raise ExternalError(msg)
