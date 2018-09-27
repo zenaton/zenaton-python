@@ -1,4 +1,9 @@
+import json
+
 class Properties:
+    SPECIAL_CASES = [
+        Exception,
+    ]
 
     def blank_instance(self, class_):
 
@@ -31,13 +36,14 @@ class Properties:
             raise Exception(error_message)
 
     def valid_object(self, object_, super_class):
-        pass
+        return not super_class or issubclass(object_, super_class)
 
-    def from_comple_type(self, object_):
+    def from_complex_type(self, object_):
         pass
 
     def set_complex_type(self, object_, props):
-        pass
+        props['json_class'] = type(object).__name__
+        return json.dumps(props)
 
     def is_special_case(self, object_):
         pass
