@@ -1,8 +1,12 @@
 import json
+import datetime
 
 class Properties:
     SPECIAL_CASES = [
         Exception,
+        datetime.datetime,
+        datetime.date,
+        datetime.time,
     ]
 
     def blank_instance(self, class_):
@@ -15,14 +19,20 @@ class Properties:
         return output
 
     def from_(self, object_):
-        if hasattr(object_, 'buffer'):
-            return object_.buffer
-        return vars(object_)
+        if self.is_special_case(object_):
+            return self.from_complex_type(object_)
+        else:
+            if hasattr(object_, 'buffer'):
+                return object_.buffer
+            return vars(object_)
 
     def set(self, object_, properties):
-        if properties != (None,) and properties is not None:
-            for key, value in properties.items():
-                setattr(object_, key, value)
+        if self.is_special_case(object_):
+            return self.set_complex_type(object_)
+        else:
+            if properties != (None,) and properties is not None:
+                for key, value in properties.items():
+                    setattr(object_, key, value)
 
     def object_from(self, class_, properties, super_class=None):
         object_ = self.blank_instance(class_)
@@ -39,11 +49,13 @@ class Properties:
         return not super_class or issubclass(object_, super_class)
 
     def from_complex_type(self, object_):
-        pass
+        # del object['json_class']
+        return object_
 
     def set_complex_type(self, object_, props):
-        props['json_class'] = type(object).__name__
+        # props['json_class'] = type(object).__name__
         return json.dumps(props)
 
     def is_special_case(self, object_):
-        pass
+        # TO DO ?: Test Proc
+        return type(object_) in self.SPECIAL_CASES or isinstance(object_, BaseException)
