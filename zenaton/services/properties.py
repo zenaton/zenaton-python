@@ -1,6 +1,7 @@
 import json
 import datetime
 
+
 class Properties:
     SPECIAL_CASES = [
         Exception,
@@ -11,19 +12,38 @@ class Properties:
 
     def blank_instance(self, class_):
 
+        print('class_: {}'.format(class_))
+        print('type: {}'.format(type(class_)))
+
+        if isinstance(class_, type(None)) or class_ == 'NoneType':
+            return None
+
         class Empty:
             pass
+
+        print('class_: {}'.format(class_))
 
         output = Empty()
         output.__class__ = class_
         return output
 
     def from_(self, object_):
+        print('from_')
+        if not object_:
+            print('from_ None')
+            # return {'key': 'value'}
+            return None
         if self.is_special_case(object_):
+            print('from_ special case')
             return self.from_complex_type(object_)
         else:
             if hasattr(object_, 'buffer'):
                 return object_.buffer
+            if hasattr(object_, 'args'):
+                print('from_ args: {}'.format(object_))
+                return object_.args
+            print('from_ object: {}'.format(object_))
+            print(vars(object_))
             return vars(object_)
 
     def set(self, object_, properties):
@@ -31,6 +51,7 @@ class Properties:
             return self.set_complex_type(object_)
         else:
             if properties != (None,) and properties is not None:
+                print('properties: {}'.format(properties))
                 for key, value in properties.items():
                     setattr(object_, key, value)
 
