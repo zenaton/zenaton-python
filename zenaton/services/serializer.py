@@ -16,10 +16,12 @@ class Serializer:
     KEY_DATA = 'd'  # JSON key for json compatibles types
     KEY_STORE = 's'  # JSON key for deserialized complex object
 
-    def __init__(self):
+    def __init__(self, boot=None, name=None):
         self.properties = Properties()
         self.encoded = []
         self.decoded = []
+        self.boot = boot
+        self.name = name
 
     # def encode(self, data):
         # return '{\"o\":\"@zenaton#0\",\"s\":[{\"a\":' + json.dumps(data, sort_keys=True) + '}]}'
@@ -87,17 +89,21 @@ class Serializer:
             return self.__encode_to_store(value)
 
     def __encode_to_store(self, object_):
-
+        print('__encode_to_store self.decoded: {}'.format(self.decoded))
         element = [element for element in self.decoded if id(element) == id(object_)]
+        print('__encode_to_store element: {}'.format(element))
         if len(element) >= 1:
+            print('__encode_to_store: len>=1')
             id_ = element[0]
             return self.__store_id(id_)
         else:
+            print('__encode_to_store: __store_and_encode')
             return self.__store_and_encode(object_)
 
     def __store_and_encode(self, object_):
-        print('__store_and_encode')
-        id_ = len(self.encoded)
+        print('__store_and_encode: object_ : {}'.format(object_))
+        id_ = len(self.decoded)
+        print('__store_and_encode self.encoded: {}'.format(self.encoded))
         print('__store_and_encode id: {}'.format(id_))
         print('__store_and_encode object_: {}'.format(object_))
         self.decoded.insert(id_, object_)
@@ -120,7 +126,7 @@ class Serializer:
         return self.__encode_object(object_)
 
     def __encode_object(self, object_):
-        print("__encode_object")
+        print("__encode_object: {}".format(object_))
         return {
             self.KEY_OBJECT_NAME: type(object_).__name__,
             self.KEY_OBJECT_PROPERTIES: self.__encode_legacy_dict(self.properties.from_(object_))
@@ -217,14 +223,17 @@ class Serializer:
         if isinstance(enumerable, dict):
             return self.__decode_dict(id_, enumerable)
         else:
-            self.__decoded_object(id_, encoded)
+            return self.__decoded_object(id_, encoded)
 
     def __decoded_object(self, id_, encoded_object):
         print('__decoded_object')
         print(id_)
         print(self.decoded)
         try:
-            object_ = self.properties.blank_instance(encoded_object[self.KEY_OBJECT_NAME])
+            object_class = self.import_class(self.name, encoded_object[self.KEY_OBJECT_NAME])
+            object_ = self.properties.blank_instance(object_class)
+            print('BLANK INSTANCE: {}'.format(object_))
+            print('BLANK INSTANCE TYPE: {}'.format(type(object_)))
         except KeyError:
             object_ = None
 
@@ -236,4 +245,20 @@ class Serializer:
         # properties = self.__decode_legacy_dict(encoded_object[self.KEY_OBJECT_PROPERTIES])
         properties = self.__decode_legacy_dict(encoded_object.get(self.KEY_OBJECT_PROPERTIES, None))
         self.properties.set(object_, properties)
+        return object_
 
+    def import_class(self, workflow_name, class_name):
+        import importlib.util
+        import inspect
+        print('import_class {}'.format(self.boot))
+        spec = importlib.util.spec_from_file_location('boot', self.boot)
+        boot = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(boot)
+        workflow_class = getattr(boot, workflow_name)
+        print('workflow_class: {}'.format(workflow_class))
+        print('workflow_class type: {}'.format(type(workflow_class)))
+        workflow_path = inspect.getfile(workflow_class)
+        workflow_spec = importlib.util.spec_from_file_location('workflow', workflow_path)
+        workflow_module = importlib.util.module_from_spec(workflow_spec)
+        workflow_spec.loader.exec_module(workflow_module)
+        return getattr(workflow_module, class_name)

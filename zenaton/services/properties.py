@@ -43,17 +43,24 @@ class Properties:
                 print('from_ args: {}'.format(object_))
                 return object_.args
             print('from_ object: {}'.format(object_))
-            print(vars(object_))
+            # print(vars(object_))
             return vars(object_)
+            #     print(object_.__dict__)
+            #     return object_.__dict__
+            # except AttributeError:
+            #     return None
 
     def set(self, object_, properties):
+        print("SET")
         if self.is_special_case(object_):
+            print("SET is_special_case")
             return self.set_complex_type(object_)
         else:
             if properties != (None,) and properties is not None:
                 print('properties: {}'.format(properties))
                 for key, value in properties.items():
                     setattr(object_, key, value)
+            return object_
 
     def object_from(self, class_, properties, super_class=None):
         object_ = self.blank_instance(class_)
@@ -74,6 +81,7 @@ class Properties:
         return object_
 
     def set_complex_type(self, object_, props):
+        print("SET COMPLEX TYPE")
         # props['json_class'] = type(object).__name__
         return json.dumps(props)
 
