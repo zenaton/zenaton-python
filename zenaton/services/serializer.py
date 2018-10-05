@@ -1,5 +1,7 @@
-import json
 import copy
+import json
+import inspect
+import importlib.util
 
 from zenaton.services.properties import Properties
 from zenaton.exceptions import InvalidArgumentError
@@ -23,12 +25,8 @@ class Serializer:
         self.boot = boot
         self.name = name
 
-    # def encode(self, data):
-        # return '{\"o\":\"@zenaton#0\",\"s\":[{\"a\":' + json.dumps(data, sort_keys=True) + '}]}'
-
     def encode(self, data):
-
-        print('encode')
+        print('Serializer.decode: {}'.format(data))
         print(data)
         self.encoded = []
         self.decoded = []
@@ -44,11 +42,7 @@ class Serializer:
         print('encode return value: {}'.format(value))
         return json.dumps(value, sort_keys=True)
 
-    # def decode(self, json_string):
-        # return json.loads(json_string)['s'][0]['a']
-
     def decode(self, json_string):
-
         print('Serializer.decode {}'.format(json_string))
         parsed_json = json.loads(json_string)
         self.decoded = []
@@ -79,9 +73,6 @@ class Serializer:
             return self.__decode_from_store(id_, self.encoded[id_])
         print("FAIL")
 
-    def __is_basic_type(self, data):
-        return isinstance(data, str) or isinstance(data, int) or isinstance(data, bool) or data is None
-
     def __encode_value(self, value):
         if self.__is_basic_type(value):
             return value
@@ -94,24 +85,37 @@ class Serializer:
         print('__encode_to_store element: {}'.format(element))
         if len(element) >= 1:
             print('__encode_to_store: len>=1')
-            id_ = element[0]
+            print('__encode_to_store: len>=1 object {}'.format(object_))
+            id_ = self.decoded.index(element[0])
+            print('__encode_to_store len >=1 id: {}'.format(id_))
             return self.__store_id(id_)
         else:
             print('__encode_to_store: __store_and_encode')
-            return self.__store_and_encode(object_)
+            print('__store_and_encode: object_ : {}'.format(object_))
+            id_ = len(self.decoded)
+            print('__store_and_encode before self.encoded: {}'.format(self.encoded))
+            print('__store_and_encode id: {}'.format(id_))
+            print('__store_and_encode id len(self.encoded): {}'.format(len(self.encoded)))
+            print('__store_and_encode object_: {}'.format(object_))
+            # self.decoded.insert(id_, object_)
+            self.insert_at_index(self.decoded, id_, object_)
+            # self.decoded.extend([object_,])
+            # self.encoded.insert(id_, self.__encode_object_by_type(object_))
+            # self.encoded.extend([self.__encode_object_by_type(object_),])
+            # self.encoded.insert(id_, self.__encode_object_by_type(object_))
+            self.insert_at_index(self.encoded, id_, self.__encode_object_by_type(object_))
+            print('__store_and_encode after self.encoded: {}'.format(self.encoded))
+            print('__store_and_encode after self.decode: {}'.format(self.decoded))
+            return self.__store_id(id_)
+            # return self.__store_and_encode(object_)
 
-    def __store_and_encode(self, object_):
-        print('__store_and_encode: object_ : {}'.format(object_))
-        id_ = len(self.decoded)
-        print('__store_and_encode self.encoded: {}'.format(self.encoded))
-        print('__store_and_encode id: {}'.format(id_))
-        print('__store_and_encode object_: {}'.format(object_))
-        self.decoded.insert(id_, object_)
-        self.encoded.insert(id_, self.__encode_object_by_type(object_))
-        return self.__store_id(id_)
-
-    def __store_id(self, id):
-        return '{}{}'.format(self.ID_PREFIX, id)
+    def insert_at_index(self, list_, index, value):
+        try:
+            list_[index] = value
+        except IndexError:
+            for i in range(0, index - len(list_) + 1):
+                list_.append(None)
+            list_[index] = value
 
     def __encode_object_by_type(self, object_):
         print('__encode_object_by_type')
@@ -145,11 +149,6 @@ class Serializer:
     def __encode_legacy_dict(self, dict_):
         print('__encode_legacy_dict: {}'.format(dict_))
         return {key: self.__encode_value(value) for key, value in dict_.items()}
-
-    def __is_store_id(self, string_):
-        return isinstance(string_, str) and \
-               string_.startswith(self.ID_PREFIX) and \
-               int(string_[len(self.ID_PREFIX):]) <= len(self.encoded)
 
     def __decode_element(self, value):
         print('__decode_element')
@@ -186,8 +185,10 @@ class Serializer:
         print('__decode_list')
         # TO DO: Ask Igor about the Ruby Code
         # ??
+        print('__decode_list id_: {}'.format(id_))
         decoded_list = [self.__decode_element(element) for element in list_]
-        self.decoded[id_].extend(decoded_list)
+        print('__decode_list len: {}'.format(len(self.decoded)))
+        self.decoded.insert(id_, decoded_list)
         return decoded_list
 
     def __decode_dict(self, id_, dict_):
@@ -247,16 +248,27 @@ class Serializer:
         self.properties.set(object_, properties)
         return object_
 
+    def __is_store_id(self, string_):
+        print('__is_store_id: {}'.format(string_))
+        try:
+            suffix = int(string_[len(self.ID_PREFIX):])
+        except (TypeError, ValueError):
+            return False
+        return isinstance(string_, str) and \
+               string_.startswith(self.ID_PREFIX) and \
+               suffix <= len(self.encoded)
+
+    def __store_id(self, id):
+        return '{}{}'.format(self.ID_PREFIX, id)
+
+    def __is_basic_type(self, data):
+        return isinstance(data, str) or isinstance(data, int) or isinstance(data, bool) or data is None
+
     def import_class(self, workflow_name, class_name):
-        import importlib.util
-        import inspect
-        print('import_class {}'.format(self.boot))
         spec = importlib.util.spec_from_file_location('boot', self.boot)
         boot = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(boot)
         workflow_class = getattr(boot, workflow_name)
-        print('workflow_class: {}'.format(workflow_class))
-        print('workflow_class type: {}'.format(type(workflow_class)))
         workflow_path = inspect.getfile(workflow_class)
         workflow_spec = importlib.util.spec_from_file_location('workflow', workflow_path)
         workflow_module = importlib.util.module_from_spec(workflow_spec)
