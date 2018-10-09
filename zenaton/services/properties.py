@@ -43,7 +43,7 @@ class Properties:
                 print('from_ args: {}'.format(object_))
                 return object_.args
             print('from_ object: {}'.format(object_))
-            # print(vars(object_))
+            print('from_ object vars: {}'.format(vars(object_)))
             return vars(object_)
             #     print(object_.__dict__)
             #     return object_.__dict__
@@ -60,6 +60,7 @@ class Properties:
                 print('properties: {}'.format(properties))
                 for key, value in properties.items():
                     setattr(object_, key, value)
+            print(object_.__dict__)
             return object_
 
     def object_from(self, class_, properties, super_class=None):
