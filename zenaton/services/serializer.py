@@ -26,7 +26,16 @@ class Serializer:
         self.name = name
 
     def encode(self, data):
-        print('Serializer.decode: {}'.format(data))
+        print('Serializer.encode: {}'.format(data))
+        try:
+            print('Serializer.encode vars: {}'.format(vars(data['child'])))
+            v = vars(data['child'])
+            print(id(v['cir1'][3]))
+            print(v['cir1'][3])
+            print(id(v['cir0']))
+            print(v['cir0'])
+        except:
+            pass
         print(data)
         self.encoded = []
         self.decoded = []
@@ -45,12 +54,13 @@ class Serializer:
     def decode(self, json_string):
         print('Serializer.decode {}'.format(json_string))
         parsed_json = json.loads(json_string)
-        self.decoded = []
+        # self.decoded = []
         encoded_json = copy.deepcopy(parsed_json)
         self.encoded = encoded_json[self.KEY_STORE]
         del encoded_json[self.KEY_STORE]
+        self.decoded = [None] * len(self.encoded)
         print('parsed_json {}'.format(parsed_json))
-        print('encoded {}'.format(self.encoded))
+        print('Serializer.decode encoded {}'.format(self.encoded))
         # first_key = list(parsed_json.keys())[0]
         # print('first_key: {}'.format(first_key))
         # if first_key == self.KEY_DATA:
@@ -70,7 +80,26 @@ class Serializer:
             id_ = int(parsed_json[self.KEY_OBJECT][len(self.ID_PREFIX):])
             print('id_: {}'.format(id_))
             print('self.encoded: {}'.format(self.encoded))
-            return self.__decode_from_store(id_, self.encoded[id_])
+            ret = self.__decode_from_store(id_, self.encoded[id_])
+            print('self.decoded final: {}'.format(ret))
+            try:
+                child = ret['child']
+                print(child)
+                """
+                print(id(child.cir0))
+                print(child.cir0)
+                print(id(child.cir1[3]))
+                print(child.cir1[3])
+                print(vars(child))
+                """
+                print(id(child.dict1))
+                print(child.dict1)
+                print(id(child.dict2['teammate']))
+                print(child.dict2['teammate'])
+                print(vars(child))
+            except:
+                pass
+            return ret
         print("FAIL")
 
     def __encode_value(self, value):
@@ -86,8 +115,12 @@ class Serializer:
         if len(element) >= 1:
             print('__encode_to_store: len>=1')
             print('__encode_to_store: len>=1 object {}'.format(object_))
+            print('__encode_to_store: len>=1 self.decoded {}'.format(self.decoded))
+            print('__encode_to_store: len>=1 element {}'.format(element))
             id_ = self.decoded.index(element[0])
             print('__encode_to_store len >=1 id: {}'.format(id_))
+            print('__encode_to_store len >=1 id(): {}'.format(id(element[0])))
+            print('__encode_to_store len >=1 object id(): {}'.format(id(object_)))
             return self.__store_id(id_)
         else:
             print('__encode_to_store: __store_and_encode')
@@ -97,25 +130,55 @@ class Serializer:
             print('__store_and_encode id: {}'.format(id_))
             print('__store_and_encode id len(self.encoded): {}'.format(len(self.encoded)))
             print('__store_and_encode object_: {}'.format(object_))
-            # self.decoded.insert(id_, object_)
             self.insert_at_index(self.decoded, id_, object_)
-            # self.decoded.extend([object_,])
-            # self.encoded.insert(id_, self.__encode_object_by_type(object_))
-            # self.encoded.extend([self.__encode_object_by_type(object_),])
-            # self.encoded.insert(id_, self.__encode_object_by_type(object_))
             self.insert_at_index(self.encoded, id_, self.__encode_object_by_type(object_))
             print('__store_and_encode after self.encoded: {}'.format(self.encoded))
             print('__store_and_encode after self.decode: {}'.format(self.decoded))
             return self.__store_id(id_)
-            # return self.__store_and_encode(object_)
 
     def insert_at_index(self, list_, index, value):
+        print('inser_at_index: list_: {}, index: {}, value:{}'.format(list_, index, value))
         try:
             list_[index] = value
+            print("TRI OK")
         except IndexError:
+            print("EXCEPT ADD INDEX")
             for i in range(0, index - len(list_) + 1):
                 list_.append(None)
             list_[index] = value
+            print('insert_at_index output: list_: {}'.format(list_))
+
+    def append_at_index(self, list_, index, value):
+        print('append_at_index: list_: {}, index: {}, value:{}'.format(list_, index, value))
+        if len(list_[index]) >= len(value):
+            print('PASS')
+            return
+        try:
+            list_[index].extend(value)
+            print("TRY OK")
+            print('append_at_index output: list_: {}'.format(list_))
+        except (TypeError, IndexError, AttributeError):
+            print("EXCEPT APPEND INDEX")
+            for i in range(0, index - len(list_) + 1):
+                list_.append(None)
+            list_[index] = value
+            print('append_at_index output: list_: {}'.format(list_))
+
+    def update_at_index(self, list_, index, value):
+        print('update_at_index: list_: {}, index: {}, value:{}'.format(list_, index, value))
+        if len(list_[index]) >= len(value):
+            print('PASS')
+            return
+        try:
+            list_[index].update(value)
+            print("TRY OK")
+            print('update_at_index output: list_: {}'.format(list_))
+        except (TypeError, IndexError, AttributeError):
+            print("EXCEPT APPEND INDEX")
+            for i in range(0, index - len(list_) + 1):
+                list_.append(None)
+            list_[index] = value
+            print('update_at_index output: list_: {}'.format(list_))
 
     def __encode_object_by_type(self, object_):
         print('__encode_object_by_type')
@@ -152,6 +215,9 @@ class Serializer:
 
     def __decode_element(self, value):
         print('__decode_element')
+        element = [element for element in self.decoded if id(element) == id(value)]
+        if len(element) > 0:
+            print('ELEMENT')
         if self.__is_store_id(value):
             id_ = int(value[len(self.ID_PREFIX):])
             encoded = self.encoded[id_]
@@ -182,31 +248,41 @@ class Serializer:
         return ret
 
     def __decode_list(self, id_, list_):
-        print('__decode_list')
-        # TO DO: Ask Igor about the Ruby Code
-        # ??
+        print('__decode_list: {}'.format(list_))
         print('__decode_list id_: {}'.format(id_))
+        self.insert_at_index(self.decoded, id_, [])
         decoded_list = [self.__decode_element(element) for element in list_]
         print('__decode_list len: {}'.format(len(self.decoded)))
-        self.decoded.insert(id_, decoded_list)
+        self.append_at_index(self.decoded, id_, decoded_list)
+        print('__decode_list self.decoded: {}'.format(self.decoded))
         return decoded_list
 
-    def __decode_dict(self, id_, dict_):
+    def __decode_dict(self, id_git s, dict_
+
+    ):
         print('__decode_dict')
+
+
+self.insert_at_index(self.decoded, id_, dict())
         decoded_dict = {key: self.__decode_element(value) for key, value in dict_.items()}
+self.update_at_index(self.decoded, id_, decoded_dict)
         return decoded_dict
 
     def __decode_from_store(self, id_, encoded):
-        print('\n')
         print('__decode_from_store')
+        print(self.encoded)
         print('self.decoded: {}'.format(self.decoded))
+        print(id_)
 
-        if len(self.decoded) >= id_ + 1:
+        if len(self.decoded) >= id_ + 1 and self.decoded[id_] is not None:
             decoded = self.decoded[id_]
+            assert (id(decoded)) == id(self.decoded[id_])
+            print('__decode_from_store ALREADY DECODED {}'.format(decoded))
             return decoded
         else:
             # encoded_value = encoded[self.KEY_ARRAY]
             encoded_value = encoded.get(self.KEY_ARRAY, None)
+            print('__decode_from_store encoded_value: {}'.format(encoded_value))
             if isinstance(encoded_value, list):
                 print('__decode_from_store list')
                 return self.__decode_list(id_, encoded_value)
@@ -216,20 +292,23 @@ class Serializer:
             print('__decode_from_store object')
             return self.__decoded_object(id_, encoded)
 
-    def __decoded_object_by_type(self, id_, encoded):
-        print('__decoded_object_by_type')
-        enumerable = encoded[self.KEY_ARRAY]
-        if isinstance(enumerable, list):
-            return self.__decode_list(id_, enumerable)
-        if isinstance(enumerable, dict):
-            return self.__decode_dict(id_, enumerable)
-        else:
-            return self.__decoded_object(id_, encoded)
 
     def __decoded_object(self, id_, encoded_object):
         print('__decoded_object')
         print(id_)
         print(self.decoded)
+
+        if len(self.decoded) >= id_ + 1 and self.decoded[id_] is not None:
+            print('__decoded_object already in self.decode: {}'.format(encoded_object))
+            return self.decoded[id_]
+        """try:
+            print('__decoded_object already in self.decode: {}'.format(encoded_object))
+            
+        except IndexError:
+            print('__decoded_object INDEX ERROR')
+            print(id_)
+            print(self.decoded)"""
+
         try:
             object_class = self.import_class(self.name, encoded_object[self.KEY_OBJECT_NAME])
             object_ = self.properties.blank_instance(object_class)
@@ -238,14 +317,13 @@ class Serializer:
         except KeyError:
             object_ = None
 
-        try:
-            self.decoded[id_] = object_
-        except IndexError:
-            self.decoded.insert(id_, object_)
+        self.insert_at_index(self.decoded, id_, object_)
         print('__decoded_object encoded_object: {}'.format(encoded_object))
         # properties = self.__decode_legacy_dict(encoded_object[self.KEY_OBJECT_PROPERTIES])
         properties = self.__decode_legacy_dict(encoded_object.get(self.KEY_OBJECT_PROPERTIES, None))
         self.properties.set(object_, properties)
+        print('__decoded_object final object: {}'.format(object_))
+        print('__decoded_object final object vars: {}'.format(vars(object_)))
         return object_
 
     def __is_store_id(self, string_):
