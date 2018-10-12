@@ -30,16 +30,16 @@ class Serializer:
         try:
             print('Serializer.encode vars: {}'.format(vars(data['child'])))
             v = vars(data['child'])
-            print(id(v['cir1'][3]))
-            print(v['cir1'][3])
-            print(id(v['cir0']))
-            print(v['cir0'])
+            print(id(v['dict1']['teammate']))
+            print(v['dict1']['teammate'])
+            print(id(v['dict2']))
+            print(v['dict2'])
         except:
             pass
         print(data)
         self.encoded = []
         self.decoded = []
-        value = {}
+        value = dict()
         # TO DO ? : Test if data is a Proc
         if self.__is_basic_type(data):
             print('encode basic type: {}'.format(data))
@@ -48,7 +48,7 @@ class Serializer:
             print('encode other type: {}'.format(data))
             value[self.KEY_OBJECT] = self.__encode_to_store(data)
         value[self.KEY_STORE] = self.encoded
-        print('encode return value: {}'.format(value))
+        print('Serializer.encode return value: {}'.format(value))
         return json.dumps(value, sort_keys=True)
 
     def decode(self, json_string):
@@ -58,9 +58,10 @@ class Serializer:
         encoded_json = copy.deepcopy(parsed_json)
         self.encoded = encoded_json[self.KEY_STORE]
         del encoded_json[self.KEY_STORE]
-        self.decoded = [None] * len(self.encoded)
+        # self.decoded = [None] * len(self.encoded)
+        self.decoded = []
         print('parsed_json {}'.format(parsed_json))
-        print('Serializer.decode encoded {}'.format(self.encoded))
+        print('decode self.encoded {}'.format(self.encoded))
         # first_key = list(parsed_json.keys())[0]
         # print('first_key: {}'.format(first_key))
         # if first_key == self.KEY_DATA:
@@ -81,8 +82,9 @@ class Serializer:
             print('id_: {}'.format(id_))
             print('self.encoded: {}'.format(self.encoded))
             ret = self.__decode_from_store(id_, self.encoded[id_])
-            print('self.decoded final: {}'.format(ret))
+            print('Serializer.decode return value: {}'.format(ret))
             try:
+                print('Serializer.decode return vars: {}'.format(vars(ret['child'])))
                 child = ret['child']
                 print(child)
                 """
@@ -109,13 +111,27 @@ class Serializer:
             return self.__encode_to_store(value)
 
     def __encode_to_store(self, object_):
+
+        for index, element in enumerate(self.decoded):
+            if id(element) == id(object_):
+                print('__encode_to_store: len>=1')
+                print('__encode_to_store: len>=1 object {}'.format(object_))
+                print('__encode_to_store: len>=1 self.decoded {}'.format(self.decoded))
+                print('__encode_to_store: len>=1 len(self.decoded) {}'.format(len(self.decoded)))
+                print('__encode_to_store: len>=1 element {}'.format(element))
+                print('__encode_to_store len >=1 id: {}'.format(index))
+                print('__encode_to_store len >=1 object id(): {}'.format(id(object_)))
+                return self.__store_id(index)
+        """
         print('__encode_to_store self.decoded: {}'.format(self.decoded))
         element = [element for element in self.decoded if id(element) == id(object_)]
         print('__encode_to_store element: {}'.format(element))
+
         if len(element) >= 1:
             print('__encode_to_store: len>=1')
             print('__encode_to_store: len>=1 object {}'.format(object_))
             print('__encode_to_store: len>=1 self.decoded {}'.format(self.decoded))
+            print('__encode_to_store: len>=1 len(self.decoded) {}'.format(len(self.decoded)))
             print('__encode_to_store: len>=1 element {}'.format(element))
             id_ = self.decoded.index(element[0])
             print('__encode_to_store len >=1 id: {}'.format(id_))
@@ -123,21 +139,23 @@ class Serializer:
             print('__encode_to_store len >=1 object id(): {}'.format(id(object_)))
             return self.__store_id(id_)
         else:
-            print('__encode_to_store: __store_and_encode')
-            print('__store_and_encode: object_ : {}'.format(object_))
-            id_ = len(self.decoded)
-            print('__store_and_encode before self.encoded: {}'.format(self.encoded))
-            print('__store_and_encode id: {}'.format(id_))
-            print('__store_and_encode id len(self.encoded): {}'.format(len(self.encoded)))
-            print('__store_and_encode object_: {}'.format(object_))
-            self.insert_at_index(self.decoded, id_, object_)
-            self.insert_at_index(self.encoded, id_, self.__encode_object_by_type(object_))
-            print('__store_and_encode after self.encoded: {}'.format(self.encoded))
-            print('__store_and_encode after self.decode: {}'.format(self.decoded))
-            return self.__store_id(id_)
+        """
+        print('__encode_to_store: __store_and_encode')
+        print('__store_and_encode: object_ : {}'.format(object_))
+        id_ = len(self.decoded)
+        print('__store_and_encode before self.encoded: {}'.format(self.encoded))
+        print('__store_and_encode id: {}'.format(id_))
+        print('__store_and_encode id len(self.encoded): {}'.format(len(self.encoded)))
+        print('__store_and_encode object_: {}'.format(object_))
+        self.insert_at_index(self.decoded, id_, object_)
+        self.insert_at_index(self.encoded, id_, self.__encode_object_by_type(object_))
+        print('__store_and_encode after self.encoded: {}'.format(self.encoded))
+        print('__store_and_encode after self.decode: {}'.format(self.decoded))
+        return self.__store_id(id_)
 
     def insert_at_index(self, list_, index, value):
-        print('inser_at_index: list_: {}, index: {}, value:{}'.format(list_, index, value))
+        print('insert_at_index: list_: {}, index: {}, value:{}'.format(list_, index, value))
+
         try:
             list_[index] = value
             print("TRI OK")
@@ -214,7 +232,7 @@ class Serializer:
         return {key: self.__encode_value(value) for key, value in dict_.items()}
 
     def __decode_element(self, value):
-        print('__decode_element')
+        print('__decode_element: {}'.format(value))
         element = [element for element in self.decoded if id(element) == id(value)]
         if len(element) > 0:
             print('ELEMENT')
@@ -255,32 +273,39 @@ class Serializer:
         print('__decode_list len: {}'.format(len(self.decoded)))
         self.append_at_index(self.decoded, id_, decoded_list)
         print('__decode_list self.decoded: {}'.format(self.decoded))
-        return decoded_list
+        return self.decoded[id_]
 
-    def __decode_dict(self, id_git s, dict_
-
-    ):
-        print('__decode_dict')
-
-
-self.insert_at_index(self.decoded, id_, dict())
+    def __decode_dict(self, id_, dict_):
+        print('__decode_dict dict_: {}'.format(dict_))
+        self.insert_at_index(self.decoded, id_, dict())
+        """for key, value in dict_.items():
+            self.decoded[id_]"""
+        print('newly create dict id: {}'.format(id(self.decoded[id_])))
         decoded_dict = {key: self.__decode_element(value) for key, value in dict_.items()}
-self.update_at_index(self.decoded, id_, decoded_dict)
-        return decoded_dict
+        self.update_at_index(self.decoded, id_, decoded_dict)
+        print('updated dict id: {}'.format(id(self.decoded[id_])))
+        print('__decode_dict dict_: {} return self.decoded[id_] : {}'.format(dict_, self.decoded[id_]))
+        print('__decode_dict dict_ return self.decoded: {}'.format(self.decoded))
+        # return decoded_dict
+        return self.decoded[id_]
+        """
+        if id_ == 0:
+            print(self.decoded[2]['teammate'])
+            print(self.decoded[3])
+            assert id(self.decoded[2]['teammate']) == id(self.decoded[3])
+            assert id(self.decoded[3]['teammate']) == id(self.decoded[2])
+        """
+
 
     def __decode_from_store(self, id_, encoded):
-        print('__decode_from_store')
-        print(self.encoded)
-        print('self.decoded: {}'.format(self.decoded))
-        print(id_)
-
+        print('__decode_from_store id_: {}, encoded: {}'.format(id_, encoded))
         if len(self.decoded) >= id_ + 1 and self.decoded[id_] is not None:
             decoded = self.decoded[id_]
-            assert (id(decoded)) == id(self.decoded[id_])
             print('__decode_from_store ALREADY DECODED {}'.format(decoded))
+            encoded_value = encoded.get(self.KEY_ARRAY, None)
+            print('__decode_from_store encoded_value: {}'.format(encoded_value))
             return decoded
         else:
-            # encoded_value = encoded[self.KEY_ARRAY]
             encoded_value = encoded.get(self.KEY_ARRAY, None)
             print('__decode_from_store encoded_value: {}'.format(encoded_value))
             if isinstance(encoded_value, list):
