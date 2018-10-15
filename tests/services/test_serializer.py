@@ -90,4 +90,4 @@ def test_container(serializer):
            ' "s": [{"n": "Container",' \
            ' "p": {"dict0": "@zenaton#2", "dict1": "@zenaton#1"}},' \
            ' {"a": {"dict0": "@zenaton#2"}},' \
-           ' {"a": {"dict1": "@zenaton#1"}}]}') == serializer.encode(container)
+           ' {"a": {"dict1": "@zenaton#1"}}]}' == serializer.encode(container)
