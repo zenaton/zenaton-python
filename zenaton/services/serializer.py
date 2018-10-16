@@ -365,13 +365,15 @@ class Serializer:
         return '{}{}'.format(self.ID_PREFIX, id)
 
     def __is_basic_type(self, data):
-        return isinstance(data, str) or isinstance(data, int) or isinstance(data, bool) or data is None
+        return isinstance(data, str) or isinstance(data, int) or isinstance(data, float) or isinstance(data,
+                                                                                                       bool) or data is None
 
     def import_class(self, workflow_name, class_name):
         spec = importlib.util.spec_from_file_location('boot', self.boot)
         boot = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(boot)
         workflow_class = getattr(boot, workflow_name)
+        print('workflow_class: {}'.format(workflow_class))
         workflow_path = inspect.getfile(workflow_class)
         workflow_spec = importlib.util.spec_from_file_location('workflow', workflow_path)
         workflow_module = importlib.util.module_from_spec(workflow_spec)
