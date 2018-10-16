@@ -43,7 +43,7 @@ class Properties:
                 print('from_ args: {}'.format(object_))
                 return object_.args
             print('from_ object: {}'.format(object_))
-            print('from_ object vars: {}'.format(vars(object_)))
+            # print('from_ object vars: {}'.format(vars(object_)))
             return vars(object_)
             #     print(object_.__dict__)
             #     return object_.__dict__
@@ -52,16 +52,16 @@ class Properties:
 
     def set(self, object_, properties):
         print("SET")
-        if self.is_special_case(object_):
-            print("SET is_special_case")
-            return self.set_complex_type(object_)
-        else:
-            if properties != (None,) and properties is not None:
-                print('properties: {}'.format(properties))
-                for key, value in properties.items():
-                    setattr(object_, key, value)
-            print(object_.__dict__)
-            return object_
+        # if self.is_special_case(object_):
+        #    print("SET is_special_case")
+        #    return self.set_complex_type(object_)
+        # else:
+        if properties != (None,) and properties is not None:
+            print('properties: {}'.format(properties))
+            for key, value in properties.items():
+                setattr(object_, key, value)
+        print(object_.__dict__)
+        return object_
 
     def object_from(self, class_, properties, super_class=None):
         object_ = self.blank_instance(class_)
@@ -78,14 +78,21 @@ class Properties:
         return not super_class or issubclass(object_, super_class)
 
     def from_complex_type(self, object_):
-        # del object['json_class']
-        return object_
+        if isinstance(object_, datetime.datetime):
+            return {'year': object_.year, 'month': object_.month, 'day': object_.day, 'hour': object_.hour,
+                    'minute': object_.minute, 'second': object_.second, 'microsecond': object_.microsecond,
+                    'tzinfo': object_.tzinfo}
+        if isinstance(object_, datetime.date):
+            return {'year': object_.year, 'month': object_.month, 'day': object_.day}
+        if isinstance(object_, datetime.time):
+            return {'hour': object_.hour, 'minute': object_.minute, 'second': object_.second,
+                    'microsecond': object_.microsecond, 'tzinfo': object_.tzinfo}
+        return json.dumps(object_)
 
-    def set_complex_type(self, object_, props):
+    def set_complex_type(self, object_):
         print("SET COMPLEX TYPE")
         # props['json_class'] = type(object).__name__
-        return json.dumps(props)
+        return json.loads(props)
 
     def is_special_case(self, object_):
-        # TO DO ?: Test Proc
         return type(object_) in self.SPECIAL_CASES or isinstance(object_, BaseException)

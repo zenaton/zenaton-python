@@ -339,17 +339,23 @@ class Serializer:
             object_ = self.properties.blank_instance(object_class)
             print('BLANK INSTANCE: {}'.format(object_))
             print('BLANK INSTANCE TYPE: {}'.format(type(object_)))
+            self.insert_at_index(self.decoded, id_, object_)
+            print('__decoded_object encoded_object: {}'.format(encoded_object))
+            # properties = self.__decode_legacy_dict(encoded_object[self.KEY_OBJECT_PROPERTIES])
+            properties = self.__decode_legacy_dict(encoded_object.get(self.KEY_OBJECT_PROPERTIES, None))
+            self.properties.set(object_, properties)
+            print('__decoded_object final object: {}'.format(object_))
+            print('__decoded_object final object vars: {}'.format(vars(object_)))
+            return object_
+        except TypeError:
+            properties = self.__decode_legacy_dict(encoded_object.get(self.KEY_OBJECT_PROPERTIES, None))
+            object_ = object_class(**properties)
+            self.insert_at_index(self.decoded, id_, object_)
+            return object_
         except KeyError:
-            object_ = None
+            return None
 
-        self.insert_at_index(self.decoded, id_, object_)
-        print('__decoded_object encoded_object: {}'.format(encoded_object))
-        # properties = self.__decode_legacy_dict(encoded_object[self.KEY_OBJECT_PROPERTIES])
-        properties = self.__decode_legacy_dict(encoded_object.get(self.KEY_OBJECT_PROPERTIES, None))
-        self.properties.set(object_, properties)
-        print('__decoded_object final object: {}'.format(object_))
-        print('__decoded_object final object vars: {}'.format(vars(object_)))
-        return object_
+
 
     def __is_store_id(self, string_):
         print('__is_store_id: {}'.format(string_))
