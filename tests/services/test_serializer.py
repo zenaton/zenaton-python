@@ -1,5 +1,6 @@
 import pytest
 import json
+import datetime
 
 
 @pytest.mark.usefixtures("serializer")
@@ -59,6 +60,32 @@ def test_none(serializer):
     none = None
     assert '{"d": null, "s": []}' == serializer.encode(none)
     assert serializer.decode('{"d": null, "s": []}') == none
+
+
+datetime_ = datetime.datetime(2018, 10, 16, 16, 53, 29, 164069)
+
+
+@pytest.mark.usefixtures("serializer")
+def test_datetime(serializer):
+    assert '{"o": "@zenaton#0",' \
+           ' "s": [{"n": "datetime",' \
+           ' "p": {"day": 16, "hour": 16, "microsecond": 164069, "minute": 53, "month": 10, "second": 29, "tzinfo": null, "year": 2018}}]}' == serializer.encode(
+        datetime_)
+
+
+@pytest.mark.usefixtures("serializer")
+def test_date(serializer):
+    date_ = datetime_.date()
+    assert '{"o": "@zenaton#0", "s": [{"n": "date", "p": {"day": 16, "month": 10, "year": 2018}}]}' == serializer.encode(
+        date_)
+
+
+@pytest.mark.usefixtures("serializer")
+def test_time(serializer):
+    time_ = datetime_.time()
+    assert '{"o": "@zenaton#0",' \
+           ' "s": [{"n": "time", "p": {"hour": 16, "microsecond": 164069, "minute": 53, "second": 29, "tzinfo": null}}]}' == serializer.encode(
+        time_)
 
 
 @pytest.mark.usefixtures("serializer")

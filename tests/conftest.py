@@ -6,3 +6,4 @@ from .fixtures.fixture_event import my_event
 from .fixtures.fixture_engine import engine
 from .fixtures.fixture_wait import wait, wait_event
 from .fixtures.fixture_serializer import serializer
+from .fixtures.fixture_properties import properties
