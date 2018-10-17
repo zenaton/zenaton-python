@@ -77,7 +77,6 @@ class Client(metaclass=Singleton):
         :params .abstracts.workflow.Workflow flow
     """
     def start_workflow(self, flow):
-        print('props {}'.format(self.properties.from_(flow)))
         return self.http.post(self.instance_worker_url(),
                               data=json.dumps({
                                   self.ATTR_PROG: self.PROG,

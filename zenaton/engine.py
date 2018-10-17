@@ -35,12 +35,9 @@ class Engine(metaclass=Singleton):
     """
     def dispatch(self, jobs):
         map(self.check_argument, jobs)
-        print('dispatch jobs: {}'.format(jobs))
         if len(jobs) == 0 or self.processor is None:
-            print('dispatch LOCAL'.format(jobs))
             [self.local_dispatch(job) for job in jobs]
         if self.processor and len(jobs) > 0:
-            print('dispatch REMOTE'.format(jobs))
             self.processor.process(jobs, False)
 
     def local_dispatch(self, job):
