@@ -24,12 +24,14 @@ def test_get_duration(wait):
     duration += (7 * 24 * 3600)
     assert wait.get_duration() == duration
     wait.months(1)
+    duration28 = duration + (24 * 3600 * 28)
+    duration31 = duration + (24 * 3600 * 31)
     duration += (24 * 3600 * 30)
-    assert wait.get_duration() == duration
+    assert duration28 <= wait.get_duration() <= duration31
     wait.years(1)
-    duration += (24 * 3600 * 365)
-    duration_leap_year = duration - (24 * 3600)
-    assert wait.get_duration() == duration or wait.get_duration() == duration_leap_year
+    duration_31_full_year = duration31 + (24 * 3600 * 365)
+    duration_28_leap_year = duration28 - (24 * 3600)
+    assert duration_28_leap_year <= wait.get_duration() <= duration_31_full_year
 
 
 @pytest.mark.usefixtures("wait")

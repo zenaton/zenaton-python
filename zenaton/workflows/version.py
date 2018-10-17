@@ -8,7 +8,8 @@ from ..traits.zenatonable import Zenatonable
 class Version(Workflow, Zenatonable):
 
     def __init__(self, *args):
-        self.args = args
+        if args:
+            self.args = args
 
     @abc.abstractmethod
     def versions(self):
@@ -41,7 +42,7 @@ class Version(Workflow, Zenatonable):
     """
 
     def current_implementation(self):
-        if self.args != ():
+        if hasattr(self, 'args'):
             return self.current()(self.args)
         else:
             return self.current()()

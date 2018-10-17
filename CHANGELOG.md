@@ -1,5 +1,8 @@
 ## Change Log
 
+# [0.2.5] - 2018/10/17
+Object Serialization (including circular structures)
+
 # [0.2.4] - 2018/09/26
 Enhanced WithDuration & WithTimestamp classes
 
