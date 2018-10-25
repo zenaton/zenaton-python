@@ -64,6 +64,8 @@ class Properties:
         if isinstance(object_, datetime.time):
             return {'hour': object_.hour, 'minute': object_.minute, 'second': object_.second,
                     'microsecond': object_.microsecond, 'tzinfo': object_.tzinfo}
+        if issubclass(type(object_), BaseException):
+            return {'error_class': object_.__class__.__name__, 'error_args': list(object_.args)}
         return json.dumps(object_)
 
     def set_complex_type(self, object_):
