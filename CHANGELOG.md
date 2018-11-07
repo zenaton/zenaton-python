@@ -2,6 +2,9 @@
 
 # Unreleased
 
+## Added
+Calling `dispatch` on tasks now allows to process tasks asynchronously
+
 ## Fixed
 Fixed Wait task behavior in some edge cases
 Encodes HTTP params before sending request
