@@ -6,7 +6,9 @@ from .fixture_event import MyEvent
 
 @pytest.fixture
 def wait():
-    return Wait()
+    wait = Wait()
+    wait.set_timezone('Europe/Paris')
+    return wait
 
 
 @pytest.fixture

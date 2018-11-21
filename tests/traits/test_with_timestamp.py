@@ -5,12 +5,17 @@ import copy
 from zenaton.tasks.wait import Wait
 from zenaton.exceptions import ExternalError
 
+from zenaton.traits.with_timestamp import WithTimestamp
+
 
 @pytest.mark.usefixtures("wait")
 def test_get_timetamp_or_duration_next_weekday(wait):
-    wait.set_timezone('Europe/Paris')
+    wait2 = copy.deepcopy(wait)
     now = datetime.datetime.now()
     now_day = now.weekday() + 1
+    weekday = WithTimestamp.WEEKDAYS[now.weekday()]
+    getattr(wait2, weekday)()
+    assert wait2.get_timetamp_or_duration()[0] - int(now.timestamp()) == (7 * 24 * 60 * 60)
     for i in range(1, 6):
         new_wait = copy.deepcopy(wait)
         getattr(new_wait, new_wait.WEEKDAYS[now_day])(i)
@@ -18,16 +23,41 @@ def test_get_timetamp_or_duration_next_weekday(wait):
 
 
 @pytest.mark.usefixtures("wait")
-def test_get_timetamp_or_duration_day_of_month(wait):
+def test_get_timetamp_or_duration_weekday(wait):
     wait2 = copy.deepcopy(wait)
     now = datetime.datetime.now()
-    wait.set_timezone('Europe/Paris')
+    weekday = WithTimestamp.WEEKDAYS[now.weekday()]
+    getattr(wait, weekday)().at("{}:{}:{}".format(now.hour + 1, now.minute, now.second))
+    assert wait.get_timetamp_or_duration()[0] - int(now.timestamp()) == (60 * 60)
+    getattr(wait2, weekday)().at("{}:{}:{}".format(now.hour - 1, now.minute, now.second))
+    assert wait2.get_timetamp_or_duration()[0] - int(now.timestamp()) == (7 * 24 * 60 * 60) - (60 * 60)
+
+
+@pytest.mark.usefixtures("wait")
+def test_get_timetamp_or_duration_day_of_month(wait):
+    wait2 = copy.deepcopy(wait)
+    wait3 = copy.deepcopy(wait)
+    now = datetime.datetime.now()
     wait.day_of_month(now.day + 1)
     assert wait.get_timetamp_or_duration()[0] - int(now.timestamp()) == 24 * 60 * 60
-    wait2.set_timezone('Europe/Paris')
     wait2.day_of_month(now.day - 1)
     wait_duration = wait2.get_timetamp_or_duration()[0] - int(now.timestamp())
     assert 27 * 24 * 60 * 60 <= wait_duration <= 30 * 24 * 60 * 60
+    wait3.day_of_month(now.day)
+    wait_duration = wait3.get_timetamp_or_duration()[0] - int(now.timestamp())
+    assert 28 * 24 * 60 * 60 <= wait_duration <= 31 * 24 * 60 * 60
+
+
+@pytest.mark.usefixtures("wait")
+def test_get_timetamp_or_duration_day_of_month_at(wait):
+    wait2 = copy.deepcopy(wait)
+    now = datetime.datetime.now()
+    hour = now.hour
+    wait.day_of_month(now.day).at("{}:{}:{}".format(hour + 1, now.minute, now.second))
+    assert wait.get_timetamp_or_duration()[0] - int(now.timestamp()) == 60 * 60
+    wait2.day_of_month(now.day).at("{}:{}:{}".format(hour - 1, now.minute, now.second))
+    assert 28 * 24 * 60 * 60 <= wait2.get_timetamp_or_duration()[0] - int(now.timestamp()) <= 31 * 24 * 60 * 60
+
 
 
 @pytest.mark.usefixtures("wait")
@@ -41,7 +71,6 @@ def test_get_timetamp_or_duration_at(wait):
 @pytest.mark.usefixtures("wait")
 def test_get_timetamp_or_duration_timestamp(wait):
     now_timestamp = int(datetime.datetime.now().timestamp())
-    wait.set_timezone('Europe/Paris')
     wait.timestamp(now_timestamp + 10.0)
     assert wait.get_timetamp_or_duration()[0] - now_timestamp == 10
 
