@@ -1,8 +1,8 @@
 ## Change Log
 
-## Unreleased
+# Unreleased
 
-# Fixed
+## Fixed
 Fiexd Wait task behavior in some edge cases
 
 # [0.2.5] - 2018/10/17
