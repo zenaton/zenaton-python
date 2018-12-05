@@ -3,7 +3,8 @@
 # Unreleased
 
 ## Fixed
-Fiexd Wait task behavior in some edge cases
+Fixed Wait task behavior in some edge cases
+Encodes HTTP params before sending request
 
 # [0.2.5] - 2018/10/17
 Object Serialization (including circular structures)

@@ -62,3 +62,8 @@ def test_event_workflow_lifecycle(client, sequential_workflow, my_event):
     assert response['status_code'] == 200
     response = client.kill_workflow(type(sequential_workflow), sequential_workflow.id())
     assert response['status_code'] == 200
+
+
+def test_url_params_encoding(client):
+    assert client.add_app_env('', 'workflow_id').endswith('workflow_id')
+    assert client.add_app_env('', 'yann+1@zenaton.com').endswith('&yann%2B1%40zenaton.com')
