@@ -134,7 +134,10 @@ class WithTimestamp(WithDuration):
         self.__set_mode(self.MODE_MONTH_DAY)
         now_dup = now_dup.replace(day=day)
         if now >= now_dup:
-            now_dup = now_dup.replace(month=now_dup.month + 1)
+            if now_dup.month > 11:
+                now_dup = now_dup.replace(month=1, year=now_dup.year + 1)
+            else:
+                now_dup = now_dup.replace(month=now_dup.month + 1)
         return now_dup
 
     def __set_mode(self, mode):
