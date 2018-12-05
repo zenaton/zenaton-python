@@ -96,6 +96,12 @@ where `.env` is the env file containing your credentials, and `boot.py` is a fil
 
 Please see https://zenaton.com/documentation for complete documentation.
 
+## Usage Examples
+
+# Triggering An Email After 3 Days of Cold Weather: An Example of Elegant Workflow Coding with Zenaton for Python
+[Medium Article](https://medium.com/zenaton/triggering-an-email-after-3-days-of-cold-weather-f7bed6f2df16)
+[Source Code](https://github.com/zenaton/articles-python/tree/master/triggering-an-email-after-3-days-of-cold-weather)
+
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/zenaton/zenaton-Python. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
