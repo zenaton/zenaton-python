@@ -16,12 +16,14 @@ class WithTimestamp(WithDuration):
 
     timezone = 'UTC'
 
+    HAS_DAY = False
+
     def get_timetamp_or_duration(self):
         if getattr(self, 'buffer', None) is None:
             return [None, None]
         now, now_dup = self._WithDuration__init_now_then()
         self.mode = None
-        for (time_unit, time_value) in self.buffer.items():
+        for (time_unit, time_value) in sorted(self.buffer.items(), key=lambda kv: kv[0]):
             now_dup = self.__apply(time_unit, time_value, now, now_dup)
         if self.mode is None:
             return [None, self._WithDuration__diff_in_secondes(now, now_dup)]
@@ -42,30 +44,37 @@ class WithTimestamp(WithDuration):
         return self
 
     def monday(self, value=1):
+        self.HAS_DAY = True
         self._WithDuration__push('monday', value)
         return self
 
     def tuesday(self, value=1):
+        self.HAS_DAY = True
         self._WithDuration__push('tuesday', value)
         return self
 
     def wednesday(self, value=1):
+        self.HAS_DAY = True
         self._WithDuration__push('wednesday', value)
         return self
 
     def thursday(self, value=1):
+        self.HAS_DAY = True
         self._WithDuration__push('thursday', value)
         return self
 
     def friday(self, value=1):
+        self.HAS_DAY = True
         self._WithDuration__push('friday', value)
         return self
 
     def saturday(self, value=1):
+        self.HAS_DAY = True
         self._WithDuration__push('saturday', value)
         return self
 
     def sunday(self, value=1):
+        self.HAS_DAY = True
         self._WithDuration__push('sunday', value)
         return self
 
@@ -105,7 +114,9 @@ class WithTimestamp(WithDuration):
         hour, minute, second = int(hour), int(minute), int(second)
         now_dup = now_dup.replace(hour=hour, minute=minute, second=second)
         if now > now_dup:
-            now += self.__delay()
+            now_dup += self.__delay()
+        elif self.HAS_DAY:
+            now_dup -= datetime.timedelta(weeks=1)
         return now_dup
 
     def __delay(self):
@@ -122,7 +133,7 @@ class WithTimestamp(WithDuration):
     def __day_of_month(self, day, now, now_dup):
         self.__set_mode(self.MODE_MONTH_DAY)
         now_dup = now_dup.replace(day=day)
-        if now > now_dup:
+        if now >= now_dup:
             now_dup = now_dup.replace(month=now_dup.month + 1)
         return now_dup
 
