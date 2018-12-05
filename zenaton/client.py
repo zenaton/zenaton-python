@@ -1,5 +1,6 @@
 import json
 import os
+import urllib
 
 from .abstracts.workflow import Workflow
 from .exceptions import InvalidArgumentError
@@ -177,7 +178,7 @@ class Client(metaclass=Singleton):
     def add_app_env(self, url, params):
         app_env = '{}={}&'.format(self.APP_ENV, self.app_env) if self.app_env else ''
         app_id = '{}={}&'.format(self.APP_ID, self.app_id) if self.app_id else ''
-        return '{}{}{}{}'.format(url, app_env, app_id, params)
+        return '{}{}{}{}'.format(url, app_env, app_id, urllib.parse.quote_plus(params, safe='=&'))
 
     def parse_custom_id_from(self, flow):
         custom_id = flow.id()
