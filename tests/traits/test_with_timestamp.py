@@ -1,11 +1,60 @@
-import pytest
-import datetime
 import copy
+import datetime
+import pytest
 
-from zenaton.tasks.wait import Wait
+from freezegun import freeze_time
+
 from zenaton.exceptions import ExternalError
-
+from zenaton.tasks.wait import Wait
 from zenaton.traits.with_timestamp import WithTimestamp
+
+
+@freeze_time("2017-02-03 12:00:00")
+@pytest.mark.usefixtures("wait")
+def test_get_timetamp_or_duration_day_of_month_overflow_pos(wait):
+    now = datetime.datetime.now()
+    with pytest.raises(ValueError):
+        wait.day_of_month(32)
+        wait.get_timetamp_or_duration()
+
+
+@freeze_time("2017-02-03 12:00:00")
+@pytest.mark.usefixtures("wait")
+def test_get_timetamp_or_duration_day_of_month_overflow_zero(wait):
+    now = datetime.datetime.now()
+    with pytest.raises(ValueError):
+        wait.day_of_month(0)
+        wait.get_timetamp_or_duration()
+
+
+@freeze_time("2017-02-03 12:00:00")
+@pytest.mark.usefixtures("wait")
+def test_get_timetamp_or_duration_day_of_month_overflow_neg(wait):
+    now = datetime.datetime.now()
+    with pytest.raises(ValueError):
+        wait.day_of_month(-1)
+        wait.get_timetamp_or_duration()
+
+
+@freeze_time("2017-02-03 12:00:00")
+@pytest.mark.usefixtures("wait")
+def test_get_timetamp_or_duration_day_of_month_end_of_month_no_skip(wait):
+    wait.day_of_month(28)
+    assert wait.get_timetamp_or_duration()[0] == 1488283200  # i.e: "2017-02-28 12:00:00"
+
+
+@freeze_time("2017-02-03 12:00:00")
+@pytest.mark.usefixtures("wait")
+def test_get_timetamp_or_duration_day_of_month_end_of_month_next(wait):
+    wait.day_of_month(1)
+    assert wait.get_timetamp_or_duration()[0] == 1488369600  # i.e: "2017-03-01 12:00:00"
+
+
+@freeze_time("2017-02-03 12:00:00")
+@pytest.mark.usefixtures("wait")
+def test_get_timetamp_or_duration_day_of_month_end_of_month_skip(wait):
+    wait.day_of_month(31)
+    assert wait.get_timetamp_or_duration()[0] == 1490961600 # i.e: "2017-03-31 12:00:00"
 
 
 @pytest.mark.usefixtures("wait")

@@ -131,8 +131,15 @@ class WithTimestamp(WithDuration):
             raise InternalError('Unknown mode: {}'.format(self.mode))
 
     def __day_of_month(self, day, now, now_dup):
+        if not 1 <= day <= 31:
+            raise ValueError('Day should be in 1..31')
         self.__set_mode(self.MODE_MONTH_DAY)
-        now_dup = now_dup.replace(day=day)
+        try:
+            now_dup = now_dup.replace(day=day)
+        except ValueError:
+            now_dup = now_dup.replace(month=now_dup.month + 1)
+            self.__set_mode(None)
+            return self.__day_of_month(day, now, now_dup)
         if now >= now_dup:
             if now_dup.month > 11:
                 now_dup = now_dup.replace(month=1, year=now_dup.year + 1)
