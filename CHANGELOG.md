@@ -3,8 +3,9 @@
 # Unreleased
 
 ## Fixed
-Fixed Wait task behavior in some edge cases
-Encodes HTTP params before sending request
+- Calling `day_of_month` on a wait task now waits for to wait for the next day having the requested day number, even if that means waiting for next month. (i.e calling Wait().day_of_month(31) on February, 2nd will wait for March, 31st)
+- Fixed Wait task behavior in some edge cases
+- Encodes HTTP params before sending request
 
 # [0.2.5] - 2018/10/17
 Object Serialization (including circular structures)
