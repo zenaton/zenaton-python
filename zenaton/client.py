@@ -12,7 +12,7 @@ from .workflows.version import Version
 
 
 class Client(metaclass=Singleton):
-    ZENATON_API_URL = 'https://zenaton.com/api/v1'  # Zenaton api url
+    ZENATON_API_URL = 'https://api.zenaton.com/v1'  # Zenaton api url
     ZENATON_WORKER_URL = 'http://localhost'  # Default worker url
     DEFAULT_WORKER_PORT = 4001  # Default worker port
     WORKER_API_VERSION = 'v_newton'  # Default worker api version
