@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## [0.3.0] - 2019-03-25
 
 ### Added
 Calling `dispatch` on tasks now allows to process tasks asynchronously
