@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+Fixed `MANIFEST.in` file not included files required by `setup.py`.
+
 ## [0.3.0] - 2019-03-25
 
 ### Added
