@@ -33,8 +33,9 @@ class Client(metaclass=Singleton):
 
     PROG = 'Python'  # The current programming language
 
-    EVENT_INPUT = 'event_input'  # Parameter name for event data
+    EVENT_INPUT = 'event_input'  # Parameter name for event input
     EVENT_NAME = 'event_name'  # Parameter name for event name
+    EVENT_DATA = 'event_data' # Parameter name for event data
 
     WORKFLOW_KILL = 'kill'  # Worker update mode to stop a worker
     WORKFLOW_PAUSE = 'pause'  # Worker udpate mode to pause a worker
@@ -121,6 +122,7 @@ class Client(metaclass=Singleton):
             self.ATTR_ID: custom_id,
             self.EVENT_NAME: type(event).__name__,
             self.EVENT_INPUT: self.serializer.encode(self.properties.from_(event)),
+            self.EVENT_DATA: self.serializer.encode(event),
         })
         return self.http.post(self.send_event_url(), body)
 

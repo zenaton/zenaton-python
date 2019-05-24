@@ -1,5 +1,9 @@
 # Changelog
 
+## [Unreleased]
+### Added
+Added `event_data` property when sending event.
+
 ## [0.3.1] - 2019-04-26
 
 ### Fixed
