@@ -18,7 +18,7 @@
 
 [Zenaton](https://zenaton.com) helps developers to easily run, monitor and orchestrate background jobs on your workers without managing a queuing system. In addition to this, a monitoring dashboard shows you in real-time tasks executions and helps you to handle errors.
 
-The Zenaton library for PHP lets you code and launch tasks using Zenaton platform, as well as write workflows as code. You can sign up for an account on [Zenaton](https://zenaton.com) and go through the [tutorial in python](https://app.zenaton.com/tutorial/python).
+The Zenaton library for Python lets you code and launch tasks using Zenaton platform, as well as write workflows as code. You can sign up for an account on [Zenaton](https://zenaton.com) and go through the [tutorial in python](https://app.zenaton.com/tutorial/python).
 
 ## Requirements
 
