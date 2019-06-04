@@ -114,11 +114,11 @@ Let's start by implementing a first task printing something, and returning a val
 from zenaton.abstracts.workflow import Workflow
 from zenaton.traits.zenatonable import Zenatonable
 
-class HelloWorldTask(Workflow, Zenatonable):
+class HelloWorldTask(Task, Zenatonable):
 
         def handle(self):
-            echo "Hello World\n";
-            return mt_rand(0, 1);
+            print('Hello World\n')
+            return random.randint (0, 1)
 ```
 
 Now, when you want to run this task as a background job, you need to do the following:
