@@ -34,17 +34,25 @@ You can find all details on [Zenaton's website](https://zenaton.com/documentatio
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-- [Getting started](#getting-started)
-  - [Installation](#installation)
-    - [Install the Zenaton Agent](#install-the-zenaton-agent)
-    - [Install the library](#install-the-library)
-    - [Framework integration](#framework-integration)
-  - [Quick start](#quick-start)
-    - [Client Initialization](#client-initialization)
-    - [Executing a background job](#executing-a-background-job)
-  - [Orchestrating background jobs](#orchestrating-background-jobs)
-    - [Using workflows](#using-workflows)
-- [Getting help](#getting-help)
+- [Zenaton library for Python](#zenaton-library-for-python)
+  - [Requirements](#requirements)
+  - [Python Documentation](#python-documentation)
+  - [Getting started](#getting-started)
+    - [Installation](#installation)
+      - [Install the Zenaton Agent](#install-the-zenaton-agent)
+      - [Install the library](#install-the-library)
+      - [Framework integration](#framework-integration)
+    - [Quick start](#quick-start)
+      - [Client Initialization](#client-initialization)
+      - [Executing a background job](#executing-a-background-job)
+    - [Orchestrating background jobs](#orchestrating-background-jobs)
+      - [Using workflows](#using-workflows)
+  - [Getting help](#getting-help)
+    - [Theorical Examples](#theorical-examples)
+    - [Real-life Examples](#real-life-examples)
+  - [Contributing](#contributing)
+  - [License](#license)
+  - [Code of Conduct](#code-of-conduct)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -67,14 +75,14 @@ To do this, you need your **Application ID** and **API Token**.
 You can find both on [your Zenaton account](https://app.zenaton.com/api).
 
 ```sh
-zenaton listen --app_id=YourApplicationId --api_token=YourApiToken --app_env=YourApplicationEnv
+zenaton listen --app_id=YourApplicationId --api_token=YourApiToken --app_env=YourApplicationEnv --boot=boot.py
 ```
 
 #### Install the library
 
 To add the latest version of the library to your project, run the following command:
 
-```Python
+```python
 pip install zenaton
 ```
 
@@ -94,31 +102,30 @@ You can find both on [your Zenaton account](https://app.zenaton.com/api).
 
 Then, initialize your Zenaton client:
 
-```Python
-import os
-from dotenv import load_dotenv
+```python
 
-# LOADING CONFIG FROM .env file
-load_dotenv()
-app_id = os.getenv('ZENATON_APP_ID')
-api_token = os.getenv('ZENATON_API_TOKEN')
-app_env = os.getenv('ZENATON_APP_ENV')
+from zenaton.client import Client
+
+Client(your_app_id, your_api_token, your_app_env)
 ```
+
 #### Executing a background job
 
-A background job in Zenaton is a class implementing the `Zenaton.abstracts.workflow.Workflow` interface.
+A background job in Zenaton is a class implementing the `Zenaton.abstracts.task.Task` interface.
 
 Let's start by implementing a first task printing something, and returning a value:
 
 ```python
-from zenaton.abstracts.workflow import Workflow
+import random
+
+from zenaton.abstracts.task import Task
 from zenaton.traits.zenatonable import Zenatonable
 
 class HelloWorldTask(Task, Zenatonable):
 
-        def handle(self):
-            print('Hello World\n')
-            return random.randint (0, 1)
+    def handle(self):
+        print('Hello World\n')
+        return random.randint (0, 1)
 ```
 
 Now, when you want to run this task as a background job, you need to do the following:
@@ -156,15 +163,19 @@ You can read more about that in our [documentation](https://zenaton.com/document
 The implementation looks like this:
 
 ```python
+from tasks.hello_world_task import HelloWorldTask
+from tasks.final_task import FinalTask
+
 from zenaton.abstracts.workflow import Workflow
 from zenaton.traits.zenatonable import Zenatonable
 
 class MyFirstWorkflow(Workflow, Zenatonable):
 
     def handle(self):
-        $n = HelloWorldTask().execute()
 
-        if $n > 0:
+        n = HelloWorldTask().execute()
+
+        if n > 0:
             FinalTask().execute()
 ```
 
@@ -185,17 +196,17 @@ in our [documentation](https://zenaton.com/documentation/python/workflow-basics/
 
 **Found a bug?** You can open a [GitHub issue](https://github.com/zenaton/zenaton-python/issues).
 
-
 ### Theorical Examples
+
 [Python examples repo](https://github.com/zenaton/examples-python)
 
 ### Real-life Examples
-__Triggering An Email After 3 Days of Cold Weather__ ([Medium Article](https://medium.com/zenaton/triggering-an-email-after-3-days-of-cold-weather-f7bed6f2df16), [Source Code](https://github.com/zenaton/articles-python/tree/master/triggering-an-email-after-3-days-of-cold-weather))
 
+__Triggering An Email After 3 Days of Cold Weather__ ([Medium Article](https://medium.com/zenaton/triggering-an-email-after-3-days-of-cold-weather-f7bed6f2df16), [Source Code](https://github.com/zenaton/articles-python/tree/master/triggering-an-email-after-3-days-of-cold-weather))
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/zenaton/zenaton-Python. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
+Bug reports and pull requests are welcome on GitHub [here](https://github.com/zenaton/zenaton-Python). This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
 
 ## License
 
