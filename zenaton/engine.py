@@ -41,7 +41,7 @@ class Engine(metaclass=Singleton):
             self.processor.process(jobs, False)
 
     def local_dispatch(self, job):
-        if issubclass(job.__class__, Workflow):
+        if isinstance(job, Workflow):
             self.client.start_workflow(job)
         else:
             self.client.start_task(job)
@@ -54,4 +54,4 @@ class Engine(metaclass=Singleton):
         Checks if the job is a valid job i.e. it is either a Task or a Workflow
     """
     def valid_job(self, job):
-        return issubclass(job.__class__, Task) or issubclass(job.__class__, Workflow)
+        return isinstance(job, (Task, Workflow))

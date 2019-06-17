@@ -31,11 +31,7 @@ class SequentialWorkflow(Workflow, Zenatonable):
         self.id_ = id_
 
     def on_event(self, event):
-        if issubclass(MyEvent, type(event)):
-            return True
-        else:
-            return False
-
+        return isinstance(event, MyEvent)
 
 
 @pytest.fixture

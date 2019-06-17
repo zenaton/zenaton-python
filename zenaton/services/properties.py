@@ -48,7 +48,7 @@ class Properties:
 
     def check_class(self, object_, super_class):
         error_message = 'Error - #{object.class} should be an instance of #{super_class}'
-        if not issubclass(type(object_), super_class):
+        if not isinstance(object_, super_class):
             raise Exception(error_message)
 
     def valid_object(self, object_, super_class):
@@ -64,7 +64,7 @@ class Properties:
         if isinstance(object_, datetime.time):
             return {'hour': object_.hour, 'minute': object_.minute, 'second': object_.second,
                     'microsecond': object_.microsecond, 'tzinfo': object_.tzinfo}
-        if issubclass(type(object_), BaseException):
+        if isinstance(object_, BaseException):
             return {'error_class': object_.__class__.__name__, 'error_args': list(object_.args)}
         return json.dumps(object_)
 
