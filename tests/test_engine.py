@@ -11,7 +11,7 @@ class FakeTask:
 @pytest.mark.usefixtures("engine")
 def test_check_argument(engine):
     with pytest.raises(InvalidArgumentError):
-        engine.check_argument(FakeTask)
+        engine.execute([FakeTask])
 
 
 @pytest.mark.usefixtures("engine", "task0", "sequential_workflow")
@@ -26,6 +26,3 @@ def test_dispatch_task(client, engine, task0, mocker):
     mocker.spy(client, "start_task")
     task0.dispatch()
     assert client.start_task.call_count == 1
-
-
-
