@@ -42,11 +42,11 @@ class Properties:
 
     def object_from(self, class_, properties, super_class=None):
         object_ = self.blank_instance(class_)
-        self.check_class(object_, super_class)
+        self._check_class(object_, super_class)
         self.set(object_, properties)
         return object_
 
-    def check_class(self, object_, super_class):
+    def _check_class(self, object_, super_class):
         error_message = 'Error - #{object.class} should be an instance of #{super_class}'
         if not isinstance(object_, super_class):
             raise Exception(error_message)

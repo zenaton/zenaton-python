@@ -7,12 +7,12 @@ class Builder:
 
     def __init__(self, class_):
         from ..client import Client
-        self.check_class(class_)
+        self._check_class(class_)
         self.class_ = class_
         self.client = Client()
 
     """
-        Sets the id of the workflow we want to find
+        Sets the where_id of the workflow we want to find
         :param String or None id the id
         :returns Builder the current builder
     """
@@ -64,7 +64,7 @@ class Builder:
         :param class class_
     """
 
-    def check_class(self, class_):
+    def _check_class(self, class_):
         msg = '{} should be a subclass of .abstracts.workflow'.format(class_)
         if not issubclass(class_, Workflow):
             raise ExternalError(msg)

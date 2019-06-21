@@ -23,7 +23,7 @@ class Engine(metaclass=Singleton):
         @return [Array<String>, nil] the results if executed locally, or nil
     """
     def execute(self, jobs):
-        map(self.check_argument, jobs)
+        map(Engine._check_argument, jobs)
         if len(jobs) == 0 or self.processor is None:
             return [job.handle() for job in jobs]
         return self.processor.process(jobs, True)
@@ -34,7 +34,7 @@ class Engine(metaclass=Singleton):
         @return nil
     """
     def dispatch(self, jobs):
-        map(self.check_argument, jobs)
+        map(Engine._check_argument, jobs)
         if len(jobs) == 0 or self.processor is None:
             [self.local_dispatch(job) for job in jobs]
         if self.processor and len(jobs) > 0:
@@ -46,12 +46,14 @@ class Engine(metaclass=Singleton):
         else:
             self.client.start_task(job)
 
-    def check_argument(self, job):
-        if not self.valid_job(job):
+    @staticmethod
+    def _check_argument(job):
+        if not Engine.valid_job(job):
             raise InvalidArgumentError('You can only execute or dispatch Zenaton Task or Worflow')
 
     """
         Checks if the job is a valid job i.e. it is either a Task or a Workflow
     """
-    def valid_job(self, job):
+    @staticmethod
+    def valid_job(job):
         return isinstance(job, (Task, Workflow))
