@@ -1,10 +1,10 @@
 # Changelog
 
 ## [Unreleased]
-### Added
-Added `event_data` property when sending event.
 
-## [0.3.1] - 2019-04-26
+### Added
+
+## [0.3.1] - 2019-06-21
 
 ## Fixed
 - Calling `day_of_month` on a wait task now waits for to wait for the next day having the requested day number, even if that means waiting for next month. (i.e calling Wait().day_of_month(31) on February, 2nd will wait for March, 31st)
@@ -12,10 +12,13 @@ Added `event_data` property when sending event.
 - Encodes HTTP params before sending request
 - Fixed `MANIFEST.in` file not included files required by `setup.py`.
 
+### Added
+- Added `event_data` property when sending event.
+
 ## [0.3.0] - 2019-03-25
 
 ### Added
-Calling `dispatch` on tasks now allows to process tasks asynchronously
+- Calling `dispatch` on tasks now allows to process tasks asynchronously
 
 ### Fixed
 Fixed Wait task behavior in some edge cases
