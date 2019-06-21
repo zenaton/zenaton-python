@@ -44,7 +44,7 @@ class Engine(metaclass=Singleton):
         if issubclass(job.__class__, Workflow):
             self.client.start_workflow(job)
         else:
-            job.handle()
+            self.client.start_task(job)
 
     def check_argument(self, job):
         if not self.valid_job(job):

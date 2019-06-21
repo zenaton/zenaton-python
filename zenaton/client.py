@@ -12,7 +12,7 @@ from .workflows.version import Version
 
 
 class Client(metaclass=Singleton):
-    ZENATON_API_URL = 'https://zenaton.com/api/v1'  # Zenaton api url
+    ZENATON_API_URL = 'https://api.zenaton.com/v1'  # Zenaton api url
     ZENATON_WORKER_URL = 'http://localhost'  # Default worker url
     DEFAULT_WORKER_PORT = 4001  # Default worker port
     WORKER_API_VERSION = 'v_newton'  # Default worker api version
@@ -29,6 +29,7 @@ class Client(metaclass=Singleton):
     ATTR_DATA = 'data'  # Parameter name for json payload
     ATTR_PROG = 'programming_language'  # Parameter name for the language
     ATTR_MODE = 'mode'  # Parameter name for the worker update mode
+    ATTR_MAX_PROCESSING_TIME = 'max_processing_time' # Pararameter name for the max processing time
 
     PROG = 'Python'  # The current programming language
 
@@ -85,6 +86,15 @@ class Client(metaclass=Singleton):
                                   self.ATTR_NAME: self.class_name(flow),
                                   self.ATTR_DATA: self.serializer.encode(self.properties.from_(flow)),
                                   self.ATTR_ID: self.parse_custom_id_from(flow)
+                       }))
+
+    def start_task(self, task):
+        return self.http.post(self.worker_url('tasks'),
+                              data=json.dumps({
+                                  self.ATTR_PROG: self.PROG,
+                                  self.ATTR_NAME: self.class_name(task),
+                                  self.ATTR_DATA: self.serializer.encode(self.properties.from_(task)),
+                                  self.ATTR_MAX_PROCESSING_TIME: task.max_processing_time() if hasattr(task, 'max_processing_time') else None
                        }))
 
     def update_instance(self, workflow, custom_id, mode):
