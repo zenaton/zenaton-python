@@ -201,7 +201,7 @@ class Client(metaclass=Singleton):
         return custom_id
 
     def canonical_name(self, flow):
-        return type(flow).__name__ if issubclass(type(flow), Version) else None
+        return type(flow).__name__ if isintance(flow, Version) else None
 
     def class_name(self, flow):
         if issubclass(type(flow), Version):
