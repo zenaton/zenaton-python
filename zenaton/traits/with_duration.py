@@ -13,7 +13,7 @@ class WithDuration:
         now, now_dup = self.__init_now_then()
         for (time_unit, time_value) in self.buffer.items():
             now_dup = self.__apply_duration(time_unit, time_value, now_dup)
-        return self.__diff_in_secondes(now, now_dup)
+        return self.__diff_in_seconds(now, now_dup)
 
     def seconds(self, value):
         self.__push('seconds', value)
@@ -86,5 +86,5 @@ class WithDuration:
         args = {str(time_unit): int(time_value)}
         return time + datetime.timedelta(**args)
 
-    def __diff_in_secondes(self, before, after):
+    def __diff_in_seconds(self, before, after):
         return (after - before) / datetime.timedelta(seconds=1)
