@@ -18,7 +18,7 @@ class HttpService:
         data the request boy, if needed
 
         :raises InternalError: if status code > 400 or JSON parsing error
-        :raises Connection: if connection fails
+        :raises ConnectionError: if connection fails
 
         :returns: the request's response content
     """
