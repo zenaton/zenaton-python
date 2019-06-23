@@ -208,6 +208,20 @@ __Triggering An Email After 3 Days of Cold Weather__ ([Medium Article](https://m
 
 Bug reports and pull requests are welcome on GitHub [here](https://github.com/zenaton/zenaton-Python). This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
 
+### Testing
+
+To test your changes before sending a pull request, first install the tests requirements:
+
+```sh
+pip install .[test]
+```
+
+Then run PyTest:
+
+```sh
+pytest
+```
+
 ## License
 
 The package is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).

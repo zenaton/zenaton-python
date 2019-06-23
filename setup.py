@@ -16,6 +16,13 @@ def read(filename):
     with open(path, encoding='utf-8') as f:
         return f.read()
 
+TEST_DEPS = [
+    'freezegun',
+    'pytest',
+    'pytest_mock',
+    'python-dotenv',
+]
+
 setup(
     name='zenaton',
     version=zenaton.__version__,
@@ -42,5 +49,7 @@ setup(
         'requests',
         'pytz'
     ],
+    tests_require=TEST_DEPS,
+    extras_require={'test': TEST_DEPS},
     zip_safe=False
 )
