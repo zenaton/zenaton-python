@@ -8,8 +8,8 @@ import pytz
 class WithDuration:
 
     def get_duration(self):
-        if self.buffer is None:
-            return
+        if not hasattr(self, 'buffer'):
+            return 0
         now, now_dup = self.__init_now_then()
         for (time_unit, time_value) in self.buffer.items():
             now_dup = self.__apply_duration(time_unit, time_value, now_dup)
@@ -38,7 +38,7 @@ class WithDuration:
     # Inspired by https://stackoverflow.com/a/50301887
     def months_to_days(self, months):
 
-        now = datetime.datetime.today().date()
+        now = datetime.datetime.today().date() + datetime.timedelta(seconds=self.get_duration())
         months_count = now.month + months
 
         year = now.year + int(months_count / 13)

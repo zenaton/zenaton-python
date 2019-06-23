@@ -1,3 +1,4 @@
+import os
 import pytest
 
 from zenaton.exceptions import InvalidArgumentError
@@ -39,6 +40,7 @@ def test_parse_custom_id_from(client, sequential_workflow):
 
 
 @pytest.mark.usefixtures("client", "sequential_workflow")
+@pytest.mark.skipif(not os.getenv('ZENATON_API_TOKEN'), reason="requires an API token")
 def test_workflow_lifecycle(client, sequential_workflow):
     response = client.start_workflow(sequential_workflow)
     assert response['status_code'] == 201
@@ -54,6 +56,7 @@ def test_workflow_lifecycle(client, sequential_workflow):
 
 
 @pytest.mark.usefixtures("client", "sequential_workflow", "my_event")
+@pytest.mark.skipif(not os.getenv('ZENATON_API_TOKEN'), reason="requires an API token")
 def test_event_workflow_lifecycle(client, sequential_workflow, my_event):
     sequential_workflow.set_id('MyEventWorkflow')
     response = client.start_workflow(sequential_workflow)
@@ -65,5 +68,6 @@ def test_event_workflow_lifecycle(client, sequential_workflow, my_event):
 
 
 def test_url_params_encoding(client):
+    client.app_env = 'prod'
     assert client.add_app_env('', 'workflow_id').endswith('workflow_id')
     assert client.add_app_env('', 'yann+1@zenaton.com').endswith('&yann%2B1%40zenaton.com')
