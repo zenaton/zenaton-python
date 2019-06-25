@@ -14,6 +14,11 @@
 
 ### Security
 
+## [0.3.3] - 2019-06-25
+
+## Fixed
+- Fix a typo in client.py that prevents correct executions of versions
+
 ## [0.3.2] - 2019-06-21
 
 ## Fixed
