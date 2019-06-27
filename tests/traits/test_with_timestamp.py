@@ -3,6 +3,7 @@ import datetime
 import pytest
 
 from freezegun import freeze_time
+import pytz
 
 from zenaton.exceptions import ExternalError
 from zenaton.tasks.wait import Wait
@@ -58,10 +59,11 @@ def test_get_timetamp_or_duration_day_of_month_end_of_month_skip(wait):
 
 
 @pytest.mark.usefixtures("wait")
+@freeze_time("2017-02-03 12:01:02")  # It's a Friday.
 def test_get_timetamp_or_duration_next_weekday(wait):
     wait2 = copy.deepcopy(wait)
-    now = datetime.datetime.now()
-    now_day = now.weekday() + 1
+    now = datetime.datetime.now(pytz.timezone('Europe/Paris'))
+    now_day = (now.weekday() + 1) % 7
     weekday = WithTimestamp.WEEKDAYS[now.weekday()]
     getattr(wait2, weekday)()
     assert wait2.get_timetamp_or_duration()[0] - int(now.timestamp()) == (7 * 24 * 60 * 60)
@@ -72,21 +74,22 @@ def test_get_timetamp_or_duration_next_weekday(wait):
 
 
 @pytest.mark.usefixtures("wait")
+@freeze_time("2017-02-03 11:01:02")  # It's a Friday, and 11:01 UTC is 12:01 in Paris that day.
 def test_get_timetamp_or_duration_weekday(wait):
     wait2 = copy.deepcopy(wait)
-    now = datetime.datetime.now()
-    weekday = WithTimestamp.WEEKDAYS[now.weekday()]
-    getattr(wait, weekday)().at("{}:{}:{}".format(now.hour + 1, now.minute, now.second))
+    now = datetime.datetime.now(pytz.timezone('Europe/Paris'))
+    wait.friday().at("13:01:02")
     assert wait.get_timetamp_or_duration()[0] - int(now.timestamp()) == (60 * 60)
-    getattr(wait2, weekday)().at("{}:{}:{}".format(now.hour - 1, now.minute, now.second))
+    wait2.friday().at("11:01:02")
     assert wait2.get_timetamp_or_duration()[0] - int(now.timestamp()) == (7 * 24 * 60 * 60) - (60 * 60)
 
 
 @pytest.mark.usefixtures("wait")
+@freeze_time("2017-02-03 11:01:02")
 def test_get_timetamp_or_duration_day_of_month(wait):
     wait2 = copy.deepcopy(wait)
     wait3 = copy.deepcopy(wait)
-    now = datetime.datetime.now()
+    now = datetime.datetime.now(pytz.timezone('Europe/Paris'))
     wait.day_of_month(now.day + 1)
     assert wait.get_timetamp_or_duration()[0] - int(now.timestamp()) == 24 * 60 * 60
     wait2.day_of_month(now.day - 1)
@@ -98,22 +101,22 @@ def test_get_timetamp_or_duration_day_of_month(wait):
 
 
 @pytest.mark.usefixtures("wait")
+@freeze_time("2017-02-03 11:01:02")  # 11:01 UTC is actually 12:01 Paris time that day.
 def test_get_timetamp_or_duration_day_of_month_at(wait):
     wait2 = copy.deepcopy(wait)
-    now = datetime.datetime.now()
-    hour = now.hour
-    wait.day_of_month(now.day).at("{}:{}:{}".format(hour + 1, now.minute, now.second))
+    now = datetime.datetime.now(pytz.timezone('Europe/Paris'))
+    wait.day_of_month(3).at("13:01:02")
     assert wait.get_timetamp_or_duration()[0] - int(now.timestamp()) == 60 * 60
-    wait2.day_of_month(now.day).at("{}:{}:{}".format(hour - 1, now.minute, now.second))
-    assert 28 * 24 * 60 * 60 <= wait2.get_timetamp_or_duration()[0] - int(now.timestamp()) <= 31 * 24 * 60 * 60
-
+    wait2.day_of_month(3).at("11:01:02")
+    assert 28 * 24 * 60 * 60 - 60 * 60 == wait2.get_timetamp_or_duration()[0] - int(now.timestamp())
 
 
 @pytest.mark.usefixtures("wait")
+@freeze_time("2017-02-03 11:01:02")  # 11:01 UTC is actually 12:01 Paris time that day.
 def test_get_timetamp_or_duration_at(wait):
-    now = datetime.datetime.now()
+    now = datetime.datetime.now(pytz.timezone('Europe/Paris'))
     wait.set_timezone('Europe/Paris')
-    wait.at('{}:{}:{}'.format(now.hour + 1, now.minute, now.second))
+    wait.at('13:01:02')
     assert wait.get_timetamp_or_duration()[0] - int(now.timestamp()) == 60 * 60
 
 

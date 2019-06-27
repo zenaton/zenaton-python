@@ -23,7 +23,8 @@ class Engine(metaclass=Singleton):
         @return [Array<String>, nil] the results if executed locally, or nil
     """
     def execute(self, jobs):
-        map(Engine._check_argument, jobs)
+        for job in jobs:
+            Engine._check_argument(jobs)
         if len(jobs) == 0 or self.processor is None:
             return [job.handle() for job in jobs]
         return self.processor.process(jobs, True)

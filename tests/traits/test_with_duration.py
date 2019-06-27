@@ -8,6 +8,7 @@ def test_get_duration(wait):
     def assert_duration():
         assert wait.get_duration() == duration
 
+    assert wait.get_duration() == 0
     wait.seconds(20)
     duration = 20.0
     assert_duration()
@@ -29,9 +30,9 @@ def test_get_duration(wait):
     duration += (24 * 3600 * 30)
     assert duration28 <= wait.get_duration() <= duration31
     wait.years(1)
-    duration_31_full_year = duration31 + (24 * 3600 * 365)
-    duration_28_leap_year = duration28 - (24 * 3600)
-    assert duration_28_leap_year <= wait.get_duration() <= duration_31_full_year
+    duration_31_leap_year = duration31 + (24 * 3600 * 366)
+    duration_28_short_year = duration28 + (24 * 3600 * 365)
+    assert duration_28_short_year <= wait.get_duration() <= duration_31_leap_year
 
 
 @pytest.mark.usefixtures("wait")
@@ -48,9 +49,9 @@ def test_time_functions(wait):
     assert 59 <= wait.buffer['days'] <= 62
     wait.buffer = {}
     wait.years(1)
-    assert wait.buffer['days'] in [364, 365]
+    assert wait.buffer['days'] in [365, 366]
     wait.years(1)
-    assert wait.buffer['days'] in [729, 730]
+    assert wait.buffer['days'] in [730, 731]
 
 
 @pytest.mark.usefixtures("wait")
@@ -59,13 +60,13 @@ def test_add_months(wait):
     assert 28 <= days <= 31
     days = wait.months_to_days(2)
     assert 56 <= days <= 62
-    assert wait.months_to_days(12) == 365
+    assert wait.months_to_days(12) in [365, 366]
 
 
 @pytest.mark.usefixtures("wait")
 def test_add_years(wait):
     days = wait.years_to_days(1)
-    assert days in [364, 365]
+    assert days in [365, 366]
 
 
 @pytest.mark.usefixtures("wait")
@@ -96,4 +97,4 @@ def test_apply_duration(wait):
 def test_diff_in_seconds(wait):
     now = datetime.datetime.now()
     now_plus_10 = now + datetime.timedelta(seconds=10)
-    assert wait._WithDuration__diff_in_secondes(now, now_plus_10) == 10
+    assert wait._WithDuration__diff_in_seconds(now, now_plus_10) == 10
