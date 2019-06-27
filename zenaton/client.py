@@ -1,3 +1,4 @@
+from contextlib import contextmanager
 import json
 import os
 import urllib
@@ -80,23 +81,27 @@ class Client(metaclass=Singleton):
         :params .abstracts.workflow.Workflow flow
     """
     def start_workflow(self, flow):
-        return self.http.post(self.instance_worker_url(),
-                              data=json.dumps({
-                                  self.ATTR_PROG: self.PROG,
-                                  self.ATTR_CANONICAL: self.canonical_name(flow),
-                                  self.ATTR_NAME: self.class_name(flow),
-                                  self.ATTR_DATA: self.serializer.encode(self.properties.from_(flow)),
-                                  self.ATTR_ID: self.parse_custom_id_from(flow)
-                       }))
+        with self._connect_to_agent():
+            return self.http.post(
+                self.instance_worker_url(),
+                data=json.dumps({
+                    self.ATTR_PROG: self.PROG,
+                    self.ATTR_CANONICAL: self.canonical_name(flow),
+                    self.ATTR_NAME: self.class_name(flow),
+                    self.ATTR_DATA: self.serializer.encode(self.properties.from_(flow)),
+                    self.ATTR_ID: self.parse_custom_id_from(flow)
+                }))
 
     def start_task(self, task):
-        return self.http.post(self.worker_url('tasks'),
-                              data=json.dumps({
-                                  self.ATTR_PROG: self.PROG,
-                                  self.ATTR_NAME: self.class_name(task),
-                                  self.ATTR_DATA: self.serializer.encode(self.properties.from_(task)),
-                                  self.ATTR_MAX_PROCESSING_TIME: task.max_processing_time() if hasattr(task, 'max_processing_time') else None
-                       }))
+        with self._connect_to_agent():
+            return self.http.post(
+                self.worker_url('tasks'),
+                data=json.dumps({
+                    self.ATTR_PROG: self.PROG,
+                    self.ATTR_NAME: self.class_name(task),
+                    self.ATTR_DATA: self.serializer.encode(self.properties.from_(task)),
+                    self.ATTR_MAX_PROCESSING_TIME: task.max_processing_time() if hasattr(task, 'max_processing_time') else None
+                }))
 
     def update_instance(self, workflow, custom_id, mode):
         params = '{}={}'.format(self.ATTR_ID, custom_id)
@@ -106,7 +111,8 @@ class Client(metaclass=Singleton):
             self.ATTR_NAME: workflow.__name__,
             self.ATTR_MODE: mode
         })
-        return self.http.put(url, options)
+        with self._connect_to_agent():
+            return self.http.put(url, options)
 
     """
         Sends an event to a workflow
@@ -124,7 +130,8 @@ class Client(metaclass=Singleton):
             self.EVENT_INPUT: self.serializer.encode(self.properties.from_(event)),
             self.EVENT_DATA: self.serializer.encode(event),
         })
-        return self.http.post(self.send_event_url(), body)
+        with self._connect_to_agent():
+            return self.http.post(self.send_event_url(), body)
 
     """
         Finds a workflow
@@ -209,3 +216,15 @@ class Client(metaclass=Singleton):
         if issubclass(type(flow), Version):
             return type(flow.current_implementation()).__name__
         return type(flow).__name__
+
+    @contextmanager
+    def _connect_to_agent(self):
+        """Display nice error message if connection to agent fails."""
+        try:
+            yield
+        except ConnectionError:
+            url = os.environ.get('ZENATON_WORKER_URL') or self.ZENATON_WORKER_URL
+            port = os.environ.get('ZENATON_WORKER_PORT') or self.DEFAULT_WORKER_PORT
+            raise ConnectionError(
+                'Could not connect to Zenaton agent at "{}:{}", make sure it is running and '
+                'listening.'.format(url, port))
