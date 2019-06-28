@@ -32,7 +32,11 @@ class Properties:
                 return object_.buffer
             if hasattr(object_, 'args'):
                 return object_.args
-            return vars(object_)
+            try:
+                return vars(object_)
+            except TypeError as error:
+                raise TypeError(
+                    'Could not get properties from {}: {}'.format(object_, error)) from error
 
     def set(self, object_, properties):
         if properties != (None,) and properties is not None:
