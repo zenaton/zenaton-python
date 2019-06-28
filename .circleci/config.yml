@@ -1,0 +1,13 @@
+version: 2.1
+jobs:
+  build:
+    docker:
+      - image: python:3
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: pip install .[test]
+      - run:
+          name: Run tests
+          command: pytest
