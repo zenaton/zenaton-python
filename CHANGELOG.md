@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 ### Added
+- Run tests in a continuous integration flow.
 
 ### Changed
 
