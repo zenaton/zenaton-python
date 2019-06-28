@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 ### Added
+- Run tests in a continuous integration flow.
 - No need for credentials when this lib is running in a Zenaton agent except if dispatching a
   sub-job.
 
