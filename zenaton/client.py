@@ -42,13 +42,18 @@ class Client(metaclass=Singleton):
     WORKFLOW_PAUSE = 'pause'  # Worker udpate mode to pause a worker
     WORKFLOW_RUN = 'run'  # Worker update mode to resume a worker
 
-    def __init__(self, app_id, api_token, app_env):
+    def __init__(self, app_id='', api_token='', app_env=''):
         self.app_id = app_id
         self.api_token = api_token
         self.app_env = app_env
         self.http = HttpService()
         self.serializer = Serializer()
         self.properties = Properties()
+
+    def __lazy_init__(self, app_id, api_token, app_env):
+        self.app_id = self.app_id or app_id
+        self.api_token = self.api_token or api_token
+        self.app_env = self.app_env or app_env
 
     """
         Gets the url for the workers
@@ -70,6 +75,8 @@ class Client(metaclass=Singleton):
     """
     def website_url(self, resource='', params=''):
         api_url = os.environ.get('ZENATON_API_URL') or self.ZENATON_API_URL
+        if not self.api_token:
+            raise ValueError('Client not initialized to access website: missing an API token.')
         url = '{}/{}?{}={}&'.format(api_url, resource, self.API_TOKEN, self.api_token)
         return self.add_app_env(url, params)
 
