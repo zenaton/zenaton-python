@@ -24,7 +24,7 @@ class Engine(metaclass=Singleton):
     """
     def execute(self, jobs):
         for job in jobs:
-            Engine._check_argument(jobs)
+            Engine._check_argument(job)
         if len(jobs) == 0 or self.processor is None:
             return [job.handle() for job in jobs]
         return self.processor.process(jobs, True)
