@@ -3,6 +3,7 @@ import pytest
 
 from zenaton.exceptions import InvalidArgumentError
 from zenaton.client import Client
+from zenaton.singleton import Singleton
 
 from .utils import validate_url
 
@@ -67,7 +68,29 @@ def test_event_workflow_lifecycle(client, sequential_workflow, my_event):
     assert response['status_code'] == 200
 
 
+@pytest.mark.usefixtures("client")
 def test_url_params_encoding(client):
     client.app_env = 'prod'
     assert client.add_app_env('', 'workflow_id').endswith('workflow_id')
     assert client.add_app_env('', 'yann+1@zenaton.com').endswith('&yann%2B1%40zenaton.com')
+
+
+def test_lazy_init():
+    Singleton._instances.clear()
+
+    # Start with a client without the API token.
+    client = Client()
+    # OK to contact the worker.
+    assert validate_url(client.worker_url())
+    # Not OK to contac the Zenaton API.
+    with pytest.raises(ValueError, match=r'.*API token.*'):
+        client.website_url()
+
+    # Create another client with the API token later.
+    client2 = Client('my-app-id', 'my-api-token', 'my-app-env')
+    # It's actually a singleton.
+    assert client == client2
+    assert validate_url(client2.worker_url())
+    website_url = client2.website_url()
+    assert validate_url(website_url)
+    assert 'my-api-token' in website_url

@@ -26,7 +26,7 @@ class WithTimestamp(WithDuration):
         for (time_unit, time_value) in sorted(self.buffer.items(), key=lambda kv: kv[0]):
             now_dup = self.__apply(time_unit, time_value, now, now_dup)
         if self.mode is None:
-            return [None, self._WithDuration__diff_in_secondes(now, now_dup)]
+            return [None, self._WithDuration__diff_in_seconds(now, now_dup)]
         if self.mode == self.MODE_TIMESTAMP:
             return [int(now_dup), None]
         return [int(now_dup.timestamp()), None]
