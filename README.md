@@ -213,7 +213,7 @@ Bug reports and pull requests are welcome on GitHub [here](https://github.com/ze
 To test your changes before sending a pull request, first install the tests requirements:
 
 ```sh
-pip install .[test]
+pip install '.[test]'
 ```
 
 Then run PyTest:
