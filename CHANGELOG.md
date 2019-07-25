@@ -3,6 +3,8 @@
 ## [Unreleased]
 
 ### Added
+- Added a `intent_id` property when dispatching workflows and tasks, sending events to workflows, and
+  pausing/resuming/killing workflows.
 
 ### Changed
 
