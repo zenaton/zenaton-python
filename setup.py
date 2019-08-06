@@ -31,7 +31,7 @@ setup(
     description='Zenaton client library',
     long_description=read('README.md') + '\n' + read('CHANGELOG.md'),
     long_description_content_type='text/markdown',
-    keywords='workflow tasks queue orchestration scheduling',
+    keywords=['workflow engine', 'workflows', 'orchestration', 'event-driven architecture', 'queuing systems', 'orchestration engine', 'background jobs', 'hosted queues', 'queues', 'jobs', 'asynchronous tasks'],
     url='https://zenaton.com/',
     license='Apache License, Version 2.0',
     classifiers=[
