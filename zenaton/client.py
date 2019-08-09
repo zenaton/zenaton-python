@@ -2,6 +2,7 @@ from contextlib import contextmanager
 import json
 import os
 import urllib
+import uuid
 
 from .abstracts.workflow import Workflow
 from .exceptions import InvalidArgumentError
@@ -24,6 +25,7 @@ class Client(metaclass=Singleton):
     APP_ID = 'app_id'  # Parameter name for the application ID
     API_TOKEN = 'api_token'  # Parameter name for the API token
 
+    ATTR_INTENT_ID = 'intent_id'  # Parameter name for intent_id
     ATTR_ID = 'custom_id'  # Parameter name for custom ids
     ATTR_NAME = 'name'  # Parameter name for workflow names
     ATTR_CANONICAL = 'canonical_name' # Parameter name for version name
@@ -92,6 +94,7 @@ class Client(metaclass=Singleton):
             return self.http.post(
                 self.instance_worker_url(),
                 data=json.dumps({
+                    self.ATTR_INTENT_ID: self.uuid(),
                     self.ATTR_PROG: self.PROG,
                     self.ATTR_CANONICAL: self.canonical_name(flow),
                     self.ATTR_NAME: self.class_name(flow),
@@ -104,6 +107,7 @@ class Client(metaclass=Singleton):
             return self.http.post(
                 self.worker_url('tasks'),
                 data=json.dumps({
+                    self.ATTR_INTENT_ID: self.uuid(),
                     self.ATTR_PROG: self.PROG,
                     self.ATTR_NAME: self.class_name(task),
                     self.ATTR_DATA: self.serializer.encode(self.properties.from_(task)),
@@ -114,6 +118,7 @@ class Client(metaclass=Singleton):
         params = '{}={}'.format(self.ATTR_ID, custom_id)
         url = self.instance_worker_url(params)
         options = json.dumps({
+            self.ATTR_INTENT_ID: self.uuid(),
             self.ATTR_PROG: self.PROG,
             self.ATTR_NAME: workflow.__name__,
             self.ATTR_MODE: mode
@@ -130,6 +135,7 @@ class Client(metaclass=Singleton):
     """
     def send_event(self, workflow_name, custom_id, event):
         body = json.dumps({
+            self.ATTR_INTENT_ID: self.uuid(),
             self.ATTR_PROG: self.PROG,
             self.ATTR_NAME: workflow_name,
             self.ATTR_ID: custom_id,
@@ -235,3 +241,7 @@ class Client(metaclass=Singleton):
             raise ConnectionError(
                 'Could not connect to Zenaton agent at "{}:{}", make sure it is running and '
                 'listening.'.format(url, port))
+
+    def uuid(self):
+        """Generate a uuidv4"""
+        return str(uuid.uuid4())
