@@ -3,6 +3,11 @@
 ## [Unreleased]
 
 ### Added
+- Added a `intent_id` property when dispatching workflows and tasks, sending events to workflows, and
+  pausing/resuming/killing workflows.
+- Execution context for tasks and workflows
+- Optional `on_error_retry_delay` method handling task failures and specifying
+  how many seconds to wait before retrying.
 
 ### Changed
 
