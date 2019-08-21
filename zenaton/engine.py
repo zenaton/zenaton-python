@@ -30,6 +30,18 @@ class Engine(metaclass=Singleton):
         return self.processor.process(jobs, True)
 
     """
+        Executes schedule jobs synchronously
+        @param jobs [Array<Zenaton::Interfaces::Job>]
+        @param cron String
+        @return [Array<String>, nil] the results if executed locally, or nil
+    """
+    def schedule(self, jobs, cron):
+        for job in jobs:
+            Engine._check_argument(job)
+
+        return [self.local_schedule(job, cron) for job in jobs]
+
+    """
         Executes jobs asynchronously
         @param jobs [Array<Zenaton::Interfaces::Job>]
         @return nil
@@ -46,6 +58,12 @@ class Engine(metaclass=Singleton):
             return self.client.start_workflow(job)
         else:
             return self.client.start_task(job)
+
+    def local_schedule(self, job, cron):
+        if isinstance(job, Workflow):
+            return self.client.start_scheduled_workflow(job, cron)
+        else:
+            return self.client.start_scheduled_task(job, cron)
 
     @staticmethod
     def _check_argument(job):

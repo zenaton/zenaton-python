@@ -103,8 +103,6 @@ class Client(metaclass=Singleton):
         :params .abstracts.workflow.Workflow flow
     """
     def start_workflow(self, flow):
-        if self.cron(flow):
-            return self.start_scheduled_workflow(flow)
         with self._connect_to_agent():
             return self.http.post(
                 self.instance_worker_url(),
@@ -118,8 +116,6 @@ class Client(metaclass=Singleton):
                 }))
 
     def start_task(self, task):
-        if self.cron(task):
-            return self.start_scheduled_task(task)
         with self._connect_to_agent():
             return self.http.post(
                 self.worker_url('tasks'),
@@ -131,7 +127,7 @@ class Client(metaclass=Singleton):
                     self.ATTR_MAX_PROCESSING_TIME: task.max_processing_time() if hasattr(task, 'max_processing_time') else None
                 }))
 
-    def start_scheduled_workflow(self, flow):
+    def start_scheduled_workflow(self, flow, cron):
         url = self.alfred_url()
         headers = self.alfred_headers()
         query = self.graphql.CREATE_WORKFLOW_SCHEDULE
@@ -139,7 +135,7 @@ class Client(metaclass=Singleton):
             'createWorkflowScheduleInput': {
                 'intentId': self.uuid(),
                 'environmentName': self.app_env,
-                'cron': self.cron(flow),
+                'cron': cron,
                 'workflowName': self.class_name(flow),
                 'canonicalName': self.canonical_name(flow) or self.class_name(flow),
                 'programmingLanguage': self.PROG.upper(),
@@ -149,7 +145,7 @@ class Client(metaclass=Singleton):
         res = self.graphql.request(url, query, variables=variables, headers=headers)
         return res['data']['createWorkflowSchedule']
 
-    def start_scheduled_task(self, task):
+    def start_scheduled_task(self, task, cron):
         url = self.alfred_url()
         headers = self.alfred_headers()
         query = self.graphql.CREATE_TASK_SCHEDULE
@@ -157,7 +153,7 @@ class Client(metaclass=Singleton):
             'createTaskScheduleInput': {
                 'intentId': self.uuid(),
                 'environmentName': self.app_env,
-                'cron': self.cron(task),
+                'cron': cron,
                 'taskName': self.class_name(task),
                 'programmingLanguage': self.PROG.upper(),
                 'properties': self.serializer.encode(self.properties.from_(task))
@@ -287,9 +283,6 @@ class Client(metaclass=Singleton):
         if issubclass(type(flow), Version):
             return type(flow.current_implementation()).__name__
         return type(flow).__name__
-
-    def cron(self, flow):
-        return hasattr(flow, 'scheduling') and flow.scheduling.get('cron')
 
     @contextmanager
     def _connect_to_agent(self):

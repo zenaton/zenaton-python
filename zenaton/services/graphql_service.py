@@ -20,8 +20,6 @@ class GraphQLService:
                             canonicalName
                             programmingLanguage
                             properties
-                            codePathVersion
-                            initialLibraryVersion
                         }
                     }
                 }
@@ -44,8 +42,6 @@ class GraphQLService:
                             type
                             programmingLanguage
                             properties
-                            codePathVersion
-                            initialLibraryVersion
                         }
                     }
                 }
