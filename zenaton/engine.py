@@ -37,15 +37,15 @@ class Engine(metaclass=Singleton):
     def dispatch(self, jobs):
         map(Engine._check_argument, jobs)
         if len(jobs) == 0 or self.processor is None:
-            [self.local_dispatch(job) for job in jobs]
+            return [self.local_dispatch(job) for job in jobs]
         if self.processor and len(jobs) > 0:
             self.processor.process(jobs, False)
 
     def local_dispatch(self, job):
         if isinstance(job, Workflow):
-            self.client.start_workflow(job)
+            return self.client.start_workflow(job)
         else:
-            self.client.start_task(job)
+            return self.client.start_task(job)
 
     @staticmethod
     def _check_argument(job):

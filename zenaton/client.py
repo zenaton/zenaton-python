@@ -7,6 +7,7 @@ import uuid
 from .abstracts.workflow import Workflow
 from .exceptions import InvalidArgumentError
 from .services.http_service import HttpService
+from .services.graphql_service import GraphQLService
 from .services.properties import Properties
 from .services.serializer import Serializer
 from .singleton import Singleton
@@ -16,6 +17,7 @@ from .workflows.version import Version
 class Client(metaclass=Singleton):
     ZENATON_API_URL = 'https://api.zenaton.com/v1'  # Zenaton api url
     ZENATON_WORKER_URL = 'http://localhost'  # Default worker url
+    ZENATON_ALFRED_URL = "https://alfred.zenaton.com/api"; # Zenaton alfred url
     DEFAULT_WORKER_PORT = 4001  # Default worker port
     WORKER_API_VERSION = 'v_newton'  # Default worker api version
 
@@ -49,6 +51,7 @@ class Client(metaclass=Singleton):
         self.api_token = api_token
         self.app_env = app_env
         self.http = HttpService()
+        self.graphql = GraphQLService()
         self.serializer = Serializer()
         self.properties = Properties()
 
@@ -56,6 +59,16 @@ class Client(metaclass=Singleton):
         self.app_id = self.app_id or app_id
         self.api_token = self.api_token or api_token
         self.app_env = self.app_env or app_env
+
+    """
+        Gets the url for alfred, the GraphQL API
+        :param String resource the endpoint for the worker
+        :param String params url encoded parameters to include in request
+        :returns String the workers url with parameters
+    """
+    def alfred_url(self):
+        url = os.environ.get('ZENATON_ALFRED_URL') or self.ZENATON_ALFRED_URL
+        return url
 
     """
         Gets the url for the workers
@@ -90,6 +103,8 @@ class Client(metaclass=Singleton):
         :params .abstracts.workflow.Workflow flow
     """
     def start_workflow(self, flow):
+        if self.cron(flow):
+            return self.start_scheduled_workflow(flow)
         with self._connect_to_agent():
             return self.http.post(
                 self.instance_worker_url(),
@@ -103,6 +118,8 @@ class Client(metaclass=Singleton):
                 }))
 
     def start_task(self, task):
+        if self.cron(task):
+            return self.start_scheduled_task(task)
         with self._connect_to_agent():
             return self.http.post(
                 self.worker_url('tasks'),
@@ -113,6 +130,41 @@ class Client(metaclass=Singleton):
                     self.ATTR_DATA: self.serializer.encode(self.properties.from_(task)),
                     self.ATTR_MAX_PROCESSING_TIME: task.max_processing_time() if hasattr(task, 'max_processing_time') else None
                 }))
+
+    def start_scheduled_workflow(self, flow):
+        url = self.alfred_url()
+        headers = self.alfred_headers()
+        query = self.graphql.CREATE_WORKFLOW_SCHEDULE
+        variables = {
+            'createWorkflowScheduleInput': {
+                'intentId': self.uuid(),
+                'environmentName': self.app_env,
+                'cron': self.cron(flow),
+                'workflowName': self.class_name(flow),
+                'canonicalName': self.canonical_name(flow) or self.class_name(flow),
+                'programmingLanguage': self.PROG.upper(),
+                'properties': self.serializer.encode(self.properties.from_(flow))
+            }
+        }
+        res = self.graphql.request(url, query, variables=variables, headers=headers)
+        return res['data']['createWorkflowSchedule']
+
+    def start_scheduled_task(self, task):
+        url = self.alfred_url()
+        headers = self.alfred_headers()
+        query = self.graphql.CREATE_TASK_SCHEDULE
+        variables = {
+            'createTaskScheduleInput': {
+                'intentId': self.uuid(),
+                'environmentName': self.app_env,
+                'cron': self.cron(task),
+                'taskName': self.class_name(task),
+                'programmingLanguage': self.PROG.upper(),
+                'properties': self.serializer.encode(self.properties.from_(task))
+            }
+        }
+        res = self.graphql.request(url, query, variables=variables, headers=headers)
+        return res['data']['createTaskSchedule']
 
     def update_instance(self, workflow, custom_id, mode):
         params = '{}={}'.format(self.ATTR_ID, custom_id)
@@ -212,6 +264,12 @@ class Client(metaclass=Singleton):
         app_id = '{}={}&'.format(self.APP_ID, self.app_id) if self.app_id else ''
         return '{}{}{}{}'.format(url, app_env, app_id, urllib.parse.quote_plus(params, safe='=&'))
 
+    def alfred_headers(self):
+        return {'Accept': 'application/json',
+                'Content-type': 'application/json',
+                'app-id': self.app_id,
+                'api-token': self.api_token}
+
     def parse_custom_id_from(self, flow):
         custom_id = flow.id()
         if custom_id is not None:
@@ -229,6 +287,9 @@ class Client(metaclass=Singleton):
         if issubclass(type(flow), Version):
             return type(flow.current_implementation()).__name__
         return type(flow).__name__
+
+    def cron(self, flow):
+        return hasattr(flow, 'scheduling') and flow.scheduling.get('cron')
 
     @contextmanager
     def _connect_to_agent(self):
