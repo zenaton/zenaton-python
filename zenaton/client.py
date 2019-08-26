@@ -62,9 +62,7 @@ class Client(metaclass=Singleton):
 
     """
         Gets the gateway url (GraphQL API)
-        :param String resource the endpoint for the worker
-        :param String params url encoded parameters to include in request
-        :returns String the workers url with parameters
+        :returns String the gateway url
     """
     def gateway_url(self):
         url = os.environ.get('ZENATON_GATEWAY_URL') or self.ZENATON_GATEWAY_URL
