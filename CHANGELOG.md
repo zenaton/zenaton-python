@@ -3,10 +3,6 @@
 ## [Unreleased]
 
 ### Added
-- Added a `intent_id` property when dispatching workflows and tasks, sending events to workflows, and
-  pausing/resuming/killing workflows.
-
-- Added scheduling: `schedule(cron)`
 
 ### Changed
 
@@ -17,6 +13,14 @@
 ### Fixed
 
 ### Security
+
+## [0.4.0] - 2019-08-26
+
+### Added
+- Added a `intent_id` property when dispatching workflows and tasks, sending events to workflows, and
+  pausing/resuming/killing workflows.
+
+- Added scheduling: `schedule(cron)`
 
 ## [0.3.4] - 2019-07-01
 
