@@ -17,7 +17,7 @@ from .workflows.version import Version
 class Client(metaclass=Singleton):
     ZENATON_API_URL = 'https://api.zenaton.com/v1'  # Zenaton api url
     ZENATON_WORKER_URL = 'http://localhost'  # Default worker url
-    ZENATON_ALFRED_URL = "https://alfred.zenaton.com/api"; # Zenaton alfred url
+    ZENATON_GATEWAY_URL = "https://gateway.zenaton.com/api"; # Zenaton gateway url
     DEFAULT_WORKER_PORT = 4001  # Default worker port
     WORKER_API_VERSION = 'v_newton'  # Default worker api version
 
@@ -61,13 +61,13 @@ class Client(metaclass=Singleton):
         self.app_env = self.app_env or app_env
 
     """
-        Gets the url for alfred, the GraphQL API
+        Gets the gateway url (GraphQL API)
         :param String resource the endpoint for the worker
         :param String params url encoded parameters to include in request
         :returns String the workers url with parameters
     """
-    def alfred_url(self):
-        url = os.environ.get('ZENATON_ALFRED_URL') or self.ZENATON_ALFRED_URL
+    def gateway_url(self):
+        url = os.environ.get('ZENATON_GATEWAY_URL') or self.ZENATON_GATEWAY_URL
         return url
 
     """
@@ -128,8 +128,8 @@ class Client(metaclass=Singleton):
                 }))
 
     def start_scheduled_workflow(self, flow, cron):
-        url = self.alfred_url()
-        headers = self.alfred_headers()
+        url = self.gateway_url()
+        headers = self.gateway_headers()
         query = self.graphql.CREATE_WORKFLOW_SCHEDULE
         variables = {
             'createWorkflowScheduleInput': {
@@ -146,8 +146,8 @@ class Client(metaclass=Singleton):
         return res['data']['createWorkflowSchedule']
 
     def start_scheduled_task(self, task, cron):
-        url = self.alfred_url()
-        headers = self.alfred_headers()
+        url = self.gateway_url()
+        headers = self.gateway_headers()
         query = self.graphql.CREATE_TASK_SCHEDULE
         variables = {
             'createTaskScheduleInput': {
@@ -260,7 +260,7 @@ class Client(metaclass=Singleton):
         app_id = '{}={}&'.format(self.APP_ID, self.app_id) if self.app_id else ''
         return '{}{}{}{}'.format(url, app_env, app_id, urllib.parse.quote_plus(params, safe='=&'))
 
-    def alfred_headers(self):
+    def gateway_headers(self):
         return {'Accept': 'application/json',
                 'Content-type': 'application/json',
                 'app-id': self.app_id,
