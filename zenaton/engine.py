@@ -39,7 +39,7 @@ class Engine(metaclass=Singleton):
         for job in jobs:
             Engine._check_argument(job)
 
-        return [self.local_schedule(job, cron) for job in jobs]
+        [self.local_schedule(job, cron) for job in jobs]
 
     """
         Executes jobs asynchronously

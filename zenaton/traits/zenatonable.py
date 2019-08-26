@@ -19,7 +19,7 @@ class Zenatonable:
         if not isinstance(cron, str) or cron == "":
             raise InvalidArgumentError("Param passed to 'schedule' function must be a non empty cron string")
 
-        return Engine().schedule([self], cron)[0]
+        return Engine().schedule([self], cron)
 
     """
         Sends self as the single job to be executed
