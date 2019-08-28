@@ -18,10 +18,10 @@ class TaskContext():
     id : str
         The UUID identifying the current task.
 
-    attempt_index : int
+    retry_index : int
         The number of times this task has been automatically retried.
         This counter is reset if you issue a manual retry from your dashboard
     """
     def __init__(self, **kwargs):
         self.id = kwargs.get('id', None)
-        self.attempt_index = kwargs.get('attempt_index', None)
+        self.retry_index = kwargs.get('retry_index', None)
