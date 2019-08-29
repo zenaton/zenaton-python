@@ -13,7 +13,10 @@ class Workflow(Job):
     def id(self):
         return None
 
-    # @return WorkflowContext
+    
+    """
+        :return TaskContext
+    """
     def get_context(self):
         return self._context or WorkflowContext()
 

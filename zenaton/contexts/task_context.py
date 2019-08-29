@@ -5,12 +5,12 @@ class TaskContext():
     The information provided by the context can be useful to alter the
     behaviour of the task.
 
-    For example, you can use the attempt index to know if a task has been
+    For example, you can use the retry_index to know if a task has been
     automatically retried or not and how many times, and decide to do
     something when you did not expect the task to be retried more than X
     times.
 
-    You can also use the attempt number in the `on_error_retry_delay` method
+    You can also use the retry_index in the `on_error_retry_delay` method
     of a task in order to implement complex retry strategies.
 
     Attributes
