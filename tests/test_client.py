@@ -11,13 +11,8 @@ from .utils import validate_url
 @pytest.mark.usefixtures("client")
 def test_url_functions(client):
     assert validate_url(client.worker_url())
-    assert validate_url(client.send_event_url())
+    assert validate_url(client.gateway_url())
     assert validate_url(client.instance_worker_url())
-    if os.getenv('ZENATON_API_TOKEN'):
-        assert validate_url(client.instance_website_url())
-    else:
-        with pytest.raises(ValueError, match=r'.*API token.*'):
-            client.instance_website_url()
 
 
 @pytest.mark.usefixtures("client", "sequential_workflow")

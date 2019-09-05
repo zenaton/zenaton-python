@@ -1,12 +1,25 @@
-from ..exceptions import ExternalError, InternalError
+from ..exceptions import InternalError
 import json
 import requests
 
 
 class GraphQLService:
+
+    # Queries
+    FIND_WORKFLOW = """
+        query ($custom_id: String!, $environment_name: String!, $programming_language: ProgrammingLanguage!, $name: String!) {
+            findWorkflow(custom_id: $custom_id, environment_name: $environment_name, programming_language: $programming_language, name: $name) {
+                id
+                name
+                properties
+            }
+        }
+    """
+
+    # Mutations
     CREATE_WORKFLOW_SCHEDULE = """
-        mutation ($createWorkflowScheduleInput: CreateWorkflowScheduleInput!) {
-            createWorkflowSchedule(input: $createWorkflowScheduleInput) {
+        mutation ($input: CreateWorkflowScheduleInput!) {
+            createWorkflowSchedule(input: $input) {
                 schedule {
                     id
                     name
@@ -28,8 +41,8 @@ class GraphQLService:
     """
 
     CREATE_TASK_SCHEDULE = """
-        mutation ($createTaskScheduleInput: CreateTaskScheduleInput!) {
-            createTaskSchedule(input: $createTaskScheduleInput) {
+        mutation ($input: CreateTaskScheduleInput!) {
+            createTaskSchedule(input: $input) {
                 schedule {
                     id
                     name
@@ -49,6 +62,60 @@ class GraphQLService:
         }
     """
 
+    DISPATCH_TASK = """
+        mutation dispatchTask($input: DispatchTaskInput!) {
+            dispatchTask(input: $input) {
+                task {
+                    intentId
+                }
+            }
+        }
+    """
+
+    DISPATCH_WORKFLOW = """
+        mutation dispatchWorkflow($input: DispatchWorkflowInput!) {
+            dispatchWorkflow(input: $input) {
+                workflow {
+                    id
+                }
+            }
+        }
+    """
+
+    KILL_WORKFLOW = """
+        mutation killWorkflow($input: KillWorkflowInput!) {
+            killWorkflow(input: $input) {
+                id
+            }
+        }
+    """
+
+    PAUSE_WORKFLOW = """
+        mutation pauseWorkflow($input: PauseWorkflowInput!) {
+            pauseWorkflow(input: $input) {
+                id
+            }
+        }
+    """
+
+    RESUME_WORKFLOW = """
+        mutation resumeWorkflow($input: ResumeWorkflowInput!) {
+            resumeWorkflow(input: $input) {
+                id
+            }
+        }
+    """
+
+    SEND_EVENT = """
+        mutation sendEventToWorkflowByNameAndCustomId($input: SendEventToWorkflowByNameAndCustomIdInput!) {
+            sendEventToWorkflowByNameAndCustomId(input: $input) {
+                event {
+                    intentId
+                }
+            }
+        }
+    """
+
     def request(self, url, query, variables=None, headers={}):
         try:
             data = {'query': query}
@@ -59,14 +126,7 @@ class GraphQLService:
             if r.status_code >= 400:
                 raise InternalError(r.content)
             content = r.json()
-            content['status_code'] = r.status_code
 
-            if 'errors' in content and isinstance(content['errors'], list) and len(content['errors']) > 0:
-                errors = content['errors']
-                for error in errors:
-                    if 'locations' in error:
-                        del error['locations']
-                raise ExternalError(errors)
         except json.decoder.JSONDecodeError:
             raise InternalError
         except requests.exceptions.ConnectionError:
