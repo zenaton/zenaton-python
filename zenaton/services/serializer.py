@@ -29,6 +29,10 @@ class Serializer:
         self._encoded = []
         self._decoded = []
         value = dict()
+
+        if isinstance(data, dict) and data.get('_context'):
+            del data['_context']
+
         if self.__is_basic_type(data):
             value[self.KEY_DATA] = data
         else:
