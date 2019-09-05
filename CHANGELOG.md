@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [0.4.1] - 2019-09-25
 
 ### Added
 - Added a `intent_id` property when dispatching workflows and tasks, sending events to workflows, and
@@ -8,16 +8,6 @@
 - Execution context for tasks and workflows
 - Optional `on_error_retry_delay` method handling task failures and specifying
   how many seconds to wait before retrying.
-
-### Changed
-
-### Deprecated
-
-### Removed
-
-### Fixed
-
-### Security
 
 ## [0.4.0] - 2019-08-26
 
