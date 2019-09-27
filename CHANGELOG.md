@@ -1,8 +1,13 @@
 # Changelog
 
+## [Unreleased]
+
+- Added `custom_id` argument for workflow schedule.
+
 ## [0.4.1] - 2019-09-25
 
 ### Added
+
 - Added a `intent_id` property when dispatching workflows and tasks, sending events to workflows, and
   pausing/resuming/killing workflows.
 - Execution context for tasks and workflows

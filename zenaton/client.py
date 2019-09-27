@@ -134,6 +134,7 @@ class Client(metaclass=Singleton):
                 'intentId': self.uuid(),
                 'environmentName': self.app_env,
                 'cron': cron,
+                'customId': self.parse_custom_id_from(flow),
                 'workflowName': self.class_name(flow),
                 'canonicalName': self.canonical_name(flow) or self.class_name(flow),
                 'programmingLanguage': self.PROG.upper(),
