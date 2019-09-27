@@ -192,7 +192,7 @@ class Client(metaclass=Singleton):
 
     """
         Stops a workflow
-        :param .abstracts.workflow.Workflow flow
+        :param .abstracts.workflow.Workflow workflow
         :param String custom_id the custom ID of the workflow, if any
         :returns None
     """
