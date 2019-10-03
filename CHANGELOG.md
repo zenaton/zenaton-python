@@ -2,7 +2,13 @@
 
 ## [Unreleased]
 
+### Added
+
 - Added `custom_id` argument for workflow schedule.
+- Dispatch of tasks and workflows are now done using the API instead of a local agent.
+- Pause, Resume and Kill workflows are now done using the API instead of a local agent.
+- Send event to workflow is now done using the API instead of a local agent.
+- Find workflow is now done using the API instead of a local agent.
 
 ## [0.4.1] - 2019-09-25
 

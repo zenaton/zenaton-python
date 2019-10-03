@@ -5,7 +5,7 @@ import urllib
 import uuid
 
 from .abstracts.workflow import Workflow
-from .exceptions import InvalidArgumentError
+from .exceptions import InvalidArgumentError, ExternalError
 from .services.http_service import HttpService
 from .services.graphql_service import GraphQLService
 from .services.properties import Properties
@@ -27,30 +27,12 @@ class Client(metaclass=Singleton):
     APP_ID = 'app_id'  # Parameter name for the application ID
     API_TOKEN = 'api_token'  # Parameter name for the API token
 
-    ATTR_INTENT_ID = 'intent_id'  # Parameter name for intent_id
-    ATTR_ID = 'custom_id'  # Parameter name for custom ids
-    ATTR_NAME = 'name'  # Parameter name for workflow names
-    ATTR_CANONICAL = 'canonical_name' # Parameter name for version name
-    ATTR_DATA = 'data'  # Parameter name for json payload
-    ATTR_PROG = 'programming_language'  # Parameter name for the language
-    ATTR_MODE = 'mode'  # Parameter name for the worker update mode
-    ATTR_MAX_PROCESSING_TIME = 'max_processing_time' # Pararameter name for the max processing time
-
-    PROG = 'Python'  # The current programming language
-
-    EVENT_INPUT = 'event_input'  # Parameter name for event input
-    EVENT_NAME = 'event_name'  # Parameter name for event name
-    EVENT_DATA = 'event_data' # Parameter name for event data
-
-    WORKFLOW_KILL = 'kill'  # Worker update mode to stop a worker
-    WORKFLOW_PAUSE = 'pause'  # Worker udpate mode to pause a worker
-    WORKFLOW_RUN = 'run'  # Worker update mode to resume a worker
+    PROG = 'PYTHON'  # The current programming language
 
     def __init__(self, app_id='', api_token='', app_env=''):
         self.app_id = app_id
         self.api_token = api_token
         self.app_env = app_env
-        self.http = HttpService()
         self.graphql = GraphQLService()
         self.serializer = Serializer()
         self.properties = Properties()
@@ -93,85 +75,68 @@ class Client(metaclass=Singleton):
         url = '{}/{}?{}={}&'.format(api_url, resource, self.API_TOKEN, self.api_token)
         return self.add_app_env(url, params)
 
-    def send_event_url(self):
-        return self.worker_url('events')
-
     """
         Start the specified workflow
         :params .abstracts.workflow.Workflow flow
     """
     def start_workflow(self, flow):
-        with self._connect_to_agent():
-            return self.http.post(
-                self.instance_worker_url(),
-                data=json.dumps({
-                    self.ATTR_INTENT_ID: self.uuid(),
-                    self.ATTR_PROG: self.PROG,
-                    self.ATTR_CANONICAL: self.canonical_name(flow),
-                    self.ATTR_NAME: self.class_name(flow),
-                    self.ATTR_DATA: self.serializer.encode(self.properties.from_(flow)),
-                    self.ATTR_ID: self.parse_custom_id_from(flow)
-                }))
+        query = self.graphql.DISPATCH_WORKFLOW
+        variables = {
+            'input': {
+                'intent_id': self.uuid(),
+                'environment_name': self.app_env,
+                'programming_language': self.PROG,
+                'custom_id': self.parse_custom_id_from(flow),
+                'name': self.class_name(flow),
+                'canonical_name': self.canonical_name(flow),
+                'data': self.serializer.encode(self.properties.from_(flow))
+            }
+        }
+        return self.gateway_request(query, variables=variables, data_response_key="dispatchWorkflow")
 
     def start_task(self, task):
-        with self._connect_to_agent():
-            return self.http.post(
-                self.worker_url('tasks'),
-                data=json.dumps({
-                    self.ATTR_INTENT_ID: self.uuid(),
-                    self.ATTR_PROG: self.PROG,
-                    self.ATTR_NAME: self.class_name(task),
-                    self.ATTR_DATA: self.serializer.encode(self.properties.from_(task)),
-                    self.ATTR_MAX_PROCESSING_TIME: task.max_processing_time() if hasattr(task, 'max_processing_time') else None
-                }))
+        query = self.graphql.DISPATCH_TASK
+        variables = {
+            'input': {
+                'intent_id': self.uuid(),
+                'environment_name': self.app_env,
+                'programming_language': self.PROG,
+                'max_processing_time': task.max_processing_time() if hasattr(task, 'max_processing_time') else None,
+                'name': self.class_name(task),
+                'data': self.serializer.encode(self.properties.from_(task))
+            }
+        }
+        return self.gateway_request(query, variables=variables, data_response_key="dispatchTask")
 
     def start_scheduled_workflow(self, flow, cron):
-        url = self.gateway_url()
-        headers = self.gateway_headers()
         query = self.graphql.CREATE_WORKFLOW_SCHEDULE
         variables = {
-            'createWorkflowScheduleInput': {
-                'intentId': self.uuid(),
-                'environmentName': self.app_env,
+            'input': {
+                'intent_id': self.uuid(),
+                'environment_name': self.app_env,
                 'cron': cron,
                 'customId': self.parse_custom_id_from(flow),
                 'workflowName': self.class_name(flow),
                 'canonicalName': self.canonical_name(flow) or self.class_name(flow),
-                'programmingLanguage': self.PROG.upper(),
+                'programmingLanguage': self.PROG,
                 'properties': self.serializer.encode(self.properties.from_(flow))
             }
         }
-        res = self.graphql.request(url, query, variables=variables, headers=headers)
-        return res['data']['createWorkflowSchedule']
+        return self.gateway_request(query, variables=variables, data_response_key="createWorkflowSchedule")
 
     def start_scheduled_task(self, task, cron):
-        url = self.gateway_url()
-        headers = self.gateway_headers()
         query = self.graphql.CREATE_TASK_SCHEDULE
         variables = {
-            'createTaskScheduleInput': {
-                'intentId': self.uuid(),
-                'environmentName': self.app_env,
+            'input': {
+                'intent_id': self.uuid(),
+                'environment_name': self.app_env,
                 'cron': cron,
-                'taskName': self.class_name(task),
-                'programmingLanguage': self.PROG.upper(),
+                'task_name': self.class_name(task),
+                'programming_language': self.PROG,
                 'properties': self.serializer.encode(self.properties.from_(task))
             }
         }
-        res = self.graphql.request(url, query, variables=variables, headers=headers)
-        return res['data']['createTaskSchedule']
-
-    def update_instance(self, workflow, custom_id, mode):
-        params = '{}={}'.format(self.ATTR_ID, custom_id)
-        url = self.instance_worker_url(params)
-        options = json.dumps({
-            self.ATTR_INTENT_ID: self.uuid(),
-            self.ATTR_PROG: self.PROG,
-            self.ATTR_NAME: workflow.__name__,
-            self.ATTR_MODE: mode
-        })
-        with self._connect_to_agent():
-            return self.http.put(url, options)
+        return self.gateway_request(query, variables=variables, data_response_key="createTaskSchedule")
 
     """
         Sends an event to a workflow
@@ -181,17 +146,20 @@ class Client(metaclass=Singleton):
         :returns None
     """
     def send_event(self, workflow_name, custom_id, event):
-        body = json.dumps({
-            self.ATTR_INTENT_ID: self.uuid(),
-            self.ATTR_PROG: self.PROG,
-            self.ATTR_NAME: workflow_name,
-            self.ATTR_ID: custom_id,
-            self.EVENT_NAME: type(event).__name__,
-            self.EVENT_INPUT: self.serializer.encode(self.properties.from_(event)),
-            self.EVENT_DATA: self.serializer.encode(event),
-        })
-        with self._connect_to_agent():
-            return self.http.post(self.send_event_url(), body)
+        query = self.graphql.SEND_EVENT
+        variables = {
+            'input': {
+                'intent_id': self.uuid(),
+                'custom_id': custom_id,
+                'environment_name': self.app_env,
+                'programming_language': self.PROG,
+                'name': type(event).__name__,
+                'input': self.serializer.encode(self.properties.from_(event)),
+                'workflow_name': workflow_name,
+                'data': self.serializer.encode(event)
+            }
+        }
+        return self.gateway_request(query, variables=variables, data_response_key="sendEventToWorkflowByNameAndCustomId")
 
     """
         Finds a workflow
@@ -201,52 +169,83 @@ class Client(metaclass=Singleton):
     """
 
     def find_workflow(self, workflow, custom_id):
+        query = self.graphql.FIND_WORKFLOW
+        variables = {
+            'custom_id': custom_id,
+            'environment_name': self.app_env,
+            'programming_language': self.PROG,
+            'name': workflow.__name__
+        }
+        res = self.gateway_request(query, variables=variables, data_response_key="findWorkflow", throw_on_error=False)
+        errors = self.get_graphql_errors(res)
+        if errors:
+            if self.contains_not_found_error(errors):
+                return None
+            else:
+                raise ExternalError(errors)
 
-        params = '{}={}&{}={}&{}={}'.format(
-            self.ATTR_ID,
-            custom_id,
-            self.ATTR_NAME,
-            workflow.__name__,
-            self.ATTR_PROG,
-            self.PROG)
-        response = self.http.get(self.instance_website_url(params))
-
-        if response.get('data', None) is not None:
-            data = response['data']
-            return self.properties.object_from(
+        return self.properties.object_from(
                 workflow,
-                self.serializer.decode(data['properties']),
+                self.serializer.decode(res['properties']),
                 Workflow
             )
-        else:
-            return None
 
     """
         Stops a workflow
-        :param String workflow_name the class name of the workflow
+        :param .abstracts.workflow.Workflow workflow
         :param String custom_id the custom ID of the workflow, if any
         :returns None
     """
-    def kill_workflow(self, workflow_name, custom_id):
-        return self.update_instance(workflow_name, custom_id, self.WORKFLOW_KILL)
+    def kill_workflow(self, workflow, custom_id):
+        query = self.graphql.KILL_WORKFLOW
+        variables = {
+            'input': {
+                'intent_id': self.uuid(),
+                'environment_name': self.app_env,
+                'programming_language': self.PROG,
+                'custom_id': custom_id,
+                'name': workflow.__name__
+            }
+        }
+        return self.gateway_request(query, variables=variables, data_response_key="killWorkflow")
 
     """
         Pauses a workflow
-        :param String workflow_name the class name of the workflow
+        :param .abstracts.workflow.Workflow flow
         :param String custom_id the custom ID of the workflow, if any
         :returns None
     """
-    def pause_workflow(self, workflow_name, custom_id):
-        return self.update_instance(workflow_name, custom_id, self.WORKFLOW_PAUSE)
+    def pause_workflow(self, workflow, custom_id):
+        query = self.graphql.PAUSE_WORKFLOW
+        variables = {
+            'input': {
+                'intent_id': self.uuid(),
+                'environment_name': self.app_env,
+                'programming_language': self.PROG,
+                'custom_id': custom_id,
+                'name': workflow.__name__
+            }
+        }
+        return self.gateway_request(query, variables=variables, data_response_key="pauseWorkflow")
 
     """
         Resumes a workflow
-        :param String workflow_name the class name of the workflow
+        :param .abstracts.workflow.Workflow flow
         :param String custom_id the custom ID of the workflow, if any
         :returns None
     """
-    def resume_workflow(self, workflow_name, custom_id):
-        return self.update_instance(workflow_name, custom_id, self.WORKFLOW_RUN)
+    def resume_workflow(self, workflow, custom_id):
+        query = self.graphql.RESUME_WORKFLOW
+        variables = {
+            'input': {
+                'intent_id': self.uuid(),
+                'environment_name': self.app_env,
+                'programming_language': self.PROG,
+                'custom_id': custom_id,
+                'name': workflow.__name__
+            }
+        }
+        return self.gateway_request(query, variables=variables, data_response_key="resumeWorkflow")
 
     def instance_website_url(self, params=''):
         return self.website_url('instances', params)
@@ -282,6 +281,35 @@ class Client(metaclass=Singleton):
         if issubclass(type(flow), Version):
             return type(flow.current_implementation()).__name__
         return type(flow).__name__
+
+    def gateway_request(self, query, variables=None, data_response_key=None, throw_on_error=True):
+        url = self.gateway_url()
+        headers = self.gateway_headers()
+        res = self.graphql.request(url, query, variables=variables, headers=headers)
+
+        errors = self.get_graphql_errors(res)
+        if errors:
+            if throw_on_error:
+                raise ExternalError(errors)
+            else:
+                return res
+
+        if data_response_key:
+            return res['data'][data_response_key]
+        else:
+            return res['data']
+
+    def contains_not_found_error(self, errors):
+        not_found_errors = list(filter(lambda error: error.get('type') == 'NOT_FOUND', errors))
+        return len(not_found_errors) > 0
+
+    def get_graphql_errors(self, response):
+        errors = response.get('errors')
+        if isinstance(errors, list) and len(errors) > 0:
+            for error in errors:
+                if 'locations' in error:
+                    del error['locations']
+        return errors
 
     @contextmanager
     def _connect_to_agent(self):
