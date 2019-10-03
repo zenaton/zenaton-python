@@ -1,2 +1,2 @@
-__version__ = '0.4.1'
-__version_id__ = 401
+__version__ = '0.4.2'
+__version_id__ = 402
